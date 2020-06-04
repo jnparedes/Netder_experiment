@@ -1,0 +1,312 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+    <style type="text/css">
+        body {
+          margin: 0;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+        #mynetwork {
+            position: absolute;
+            top:50px;
+            width: 800px;
+            height: 650px;
+            border: 1px solid lightgray;
+            font-size: 22px;
+        }
+        #visualization {
+            position: absolute;
+            top:50px;
+            border: 1px solid lightgray;
+            font-size: 22px;
+            right: 10px;
+        }
+        .bar{
+            overflow: hidden;
+            background-color: #333;
+            position: fixed;
+            top: 0;
+            height:40px;
+            width: 100%;
+        }
+        .bar #hEdges{
+            position: absolute;
+            top: 5px;
+            left: 1000px;
+            font-size: 22px;
+            color: white;
+            border: 2px solid lightgray;
+        }
+        .bar #stopButton {
+            position: absolute;
+            top: 5px;
+            left: 320px;
+            background: #333;
+            color: #f2f2f2;
+            font-size: 22px;
+        }
+        .bar #playButton {
+            float: left;
+            position: absolute;
+            top: 5px;
+            left: 250px;
+            background: #333;
+            color: #f2f2f2;
+            font-size: 22px;
+        }
+        .bar #delay{
+            position: absolute;
+            top: 5px;
+            left: 400px;
+            font-size: 22px;
+            color: white;
+            border: 2px solid lightgray;
+        }
+        .bar #backButton{
+            position: absolute;
+            top: 5px;
+            left: 680px;
+            font-size: 22px;
+            background: #333;
+            color: #f2f2f2;
+        }
+        .bar #nextButton{
+            position: absolute;
+            top: 5px;
+            left: 760px;
+            font-size: 22px;
+            background: #333;
+            color: #f2f2f2;
+        }
+        .bar #currentTime {
+            position: absolute;
+            top: 8px;
+            left: 16px;
+            font-size: 22px;
+            color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<div id="mynetwork"></div>
+
+<div id="visualization"></div>
+
+
+<div class="bar">
+    <div id="currentTime" class="topleft"> </div>
+    <a id = "hEdges"> Hide Edges: <input type="checkbox" id="EdgesCheckBox" onclick="hideEdges()"> </a>
+    <button id="playButton" onclick="play()"> Play </button>
+    <button id="stopButton" onclick="stop()"> Stop </button>
+    <button id="backButton" onclick="back()"> Back </button>
+    <button id="nextButton" onclick="next()"> Next </button>
+    <a id="delay"> Delay (ms): <input type="number" id="delayInput" value="2000"> </a>
+</div>
+
+
+<script type="text/javascript" src="Diffusion_Process/graph.json"></script>
+
+
+<script type="text/javascript">
+    var stabilized = true
+    var run = false
+    var delay = 0
+    var graph = JSON.parse(data);
+    //console.log(graph);
+
+    // create a network
+    var container = document.getElementById('mynetwork');
+
+
+    //var options = {layout: {randomSeed: 10, improvedLayout: false} };
+    //posibles randomSeed: 0.4012469889217315:1584825917805, 0.9586959507803734:1584826021248, 0.15472817393692817:1585086505753, 0.6841987126839608:1585087202426, 0.9755683664929418:1585087527907, 0.5376356242133397:1585088202549, 0.7886770177305137:1585088368072, 0.9601501537026379:1585088487394
+    var options = {edges: {width:0.1, physics: true, smooth: {enabled: true}}, nodes: {shape: "dot", size: 5}, physics: {stabilization: {iterations: 100}}, layout: {improvedLayout: false}};
+    var index = 0;
+    var nodes = new vis.DataSet(graph[index]["nodes"]);
+    var edges = new vis.DataSet(graph[index]["edges"]);
+    var dataset = {
+        nodes: nodes,
+        edges: edges
+    };
+
+    var network = new vis.Network(container, dataset, options);
+    //stabilizationIterationsDone
+    //network.once('stabilizationIterationsDone', function(e){onStabilizedNetwork(e)});
+    network.on('click', function(e){zoomIn(e)});
+    network.on('oncontext', function(e){zoomOut(e)});
+
+    network.storePositions();
+    
+    setTimeout(freeze, 2000);
+    console.log(dataset);
+    console.log(network.getSeed());
+
+    function stabilize(){
+        options = {edges: {width:0.1, physics: true, smooth: {enabled: true}}, nodes: {fixed: {x:false, y:false}, shape: "dot", size: 5}, physics: {stabilization: {enabled: true, iterations: 100}}, layout: {randomSeed:0.4012469889217315,improvedLayout: false}};
+        network.setOptions(options);
+        stabilized = false;
+        network.stabilize();
+        setTimeout(freeze, 500);
+    }
+
+    function freeze(){
+        options = {physics: {stabilization: {enabled: false}}, nodes: {fixed: {x:true, y:true}}, layout: {randomSeed:0.4012469889217315, improvedLayout: false} };
+        network.setOptions(options);
+        stabilized = true
+        document.getElementById("currentTime").innerHTML = "Current Time: " + index;
+    }
+
+    
+    function onStabilizedNetwork(e){
+        document.getElementById("currentTime").innerHTML = "Current Time: " + index;
+        if((index + 1) < graph.length){
+            setTimeout(myFunction, 2000);
+        }
+    }
+
+    function zoomOut(e){
+        var old_scale = network.getScale()
+        var new_scale = old_scale - 0.1
+        if (new_scale <= 0){
+            new_scale = old_scale
+        }
+
+        network.moveTo({position: {x: e["pointer"]["canvas"]["x"], y:e["pointer"]["canvas"]["y"]}, scale:new_scale, animation: {duration:1000}})
+    }
+
+    function zoomIn(e){
+        var old_scale = network.getScale()
+        var new_scale = old_scale + 0.1
+        network.moveTo({position: {x: e["pointer"]["canvas"]["x"], y:e["pointer"]["canvas"]["y"]}, scale:new_scale, animation: {duration:1000}})
+    }
+
+    function update(){
+        if(index + 1 < graph.length){
+            index = index + 1;
+            console.log('time: ');
+            console.log(index);
+            document.getElementById("currentTime").innerHTML = "Current Time: " + index;
+            nodes.update(graph[index]["nodes"]);
+            //edges.update(graph[index]["edges"]);
+        }
+        if(nxtTimeLineItem + 1 < global_item.length){
+            nxtTimeLineItem = nxtTimeLineItem + 1;
+            console.log('time: ');
+            console.log(nxtTimeLineItem);
+            datasetVis.update(global_item[nxtTimeLineItem]);
+        }
+    }
+
+    function hideEdges(){
+        var checkbox = document.getElementById("EdgesCheckBox")
+        var options
+        if (checkbox.checked == true){
+            options = {edges:{hidden: true}}
+            network.setOptions(options)
+        } else {
+            options = {edges:{hidden: false}}
+            network.setOptions(options)
+        }
+    }
+
+    function play(){
+        run = true;
+        delay = document.getElementById("delayInput").value;
+        goAhead();
+    }
+
+    function goAhead(){
+        if (run){
+            update();
+            document.getElementById("currentTime").innerHTML = "Current Time: " + index;
+            if((index + 1) < graph.length){
+                setTimeout(goAhead, delay);
+            }else{
+                run = false;
+            }
+        }
+    }
+    
+    function stop(){
+        run = false;
+    }
+
+    function back(){
+        if (!run && stabilized){
+            if(index - 1 >= 0){
+                index = index - 1;
+                //stabilize();
+                console.log('time: ');
+                console.log(index);
+
+                //nodes.clear();
+                //nodes.add(graph[index]["nodes"])
+                nodes.update(graph[index]["nodes"]);
+                //edges.update(graph[index]["edges"]);
+                document.getElementById("currentTime").innerHTML = "Current Time: " + index;
+            }
+            if(nxtTimeLineItem - 1 >= 0){
+                nxtTimeLineItem = nxtTimeLineItem - 1;
+                console.log('time: ');
+                console.log(nxtTimeLineItem);
+                datasetVis.clear();
+                datasetVis.add(global_item[nxtTimeLineItem]);
+            }
+        }
+    }
+
+    function next(){
+        if (!run){
+            update();
+        }
+    }
+    
+</script>
+
+<script src="https://ww3.arb.ca.gov/ei/tools/lib/vis/dist/vis.js">
+</script>
+<link href="https://ww3.arb.ca.gov/ei/tools/lib/vis/dist/vis.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript">
+    var containerVis = document.getElementById('visualization');
+    var nxtTimeLineItem = 0
+    var items = [[{x: '2014-06-11', y: 10}], [{x: '2014-06-11', y: 10},{x: '2014-06-12', y: 25}],
+    [{x: '2014-06-11', y: 10},{x: '2014-06-12', y: 25},{x: '2014-06-13', y: 30}],
+    [{x: '2014-06-11', y: 10}, {x: '2014-06-12', y: 25}, {x: '2014-06-13', y: 30}, {x: '2014-06-14', y: 10}],
+    [{x: '2014-06-11', y: 10}, {x: '2014-06-12', y: 25}, {x: '2014-06-13', y: 30}, {x: '2014-06-14', y: 10}, {x: '2014-06-15', y: 15}],
+    [{x: '2014-06-11', y: 10}, {x: '2014-06-12', y: 25}, {x: '2014-06-13', y: 30}, {x: '2014-06-14', y: 10}, {x: '2014-06-15', y: 15}, {x: '2014-06-16', y: 27}],
+    [{x: '2014-06-11', y: 10}, {x: '2014-06-12', y: 25}, {x: '2014-06-13', y: 30}, {x: '2014-06-14', y: 10}, {x: '2014-06-15', y: 15}, {x: '2014-06-16', y: 27}, {x: '2014-06-17', y: 10}],
+    [{x: '2014-06-11', y: 10}, {x: '2014-06-12', y: 25}, {x: '2014-06-13', y: 30}, {x: '2014-06-14', y: 10}, {x: '2014-06-15', y: 15}, {x: '2014-06-16', y: 27}, {x: '2014-06-17', y: 10}, {x: '2014-06-18', y: 22}],
+    [{x: '2014-06-11', y: 10}, {x: '2014-06-12', y: 25}, {x: '2014-06-13', y: 30}, {x: '2014-06-14', y: 10}, {x: '2014-06-15', y: 15}, {x: '2014-06-16', y: 27}, {x: '2014-06-17', y: 10}, {x: '2014-06-18', y: 22}, {x: '2014-06-19', y: 18}],
+    [{x: '2014-06-11', y: 10}, {x: '2014-06-12', y: 25}, {x: '2014-06-13', y: 30}, {x: '2014-06-14', y: 10}, {x: '2014-06-15', y: 15}, {x: '2014-06-16', y: 27}, {x: '2014-06-17', y: 10}, {x: '2014-06-18', y: 22}, {x: '2014-06-19', y: 18}, {x: '2014-06-20', y: 15}]
+    ];
+    var global_item = JSON.parse(global_data);
+    console.log('abajo va lo de global');
+    console.log(items[nxtTimeLineItem]);
+    var datasetVis = new vis.DataSet([]);
+    var optionsVis = {
+        graphHeight: '150px',
+        width:  '400px',
+        height: '200px',
+        start: 0,
+        end: 21,
+        hiddenDates:{repeat: 'daily'},
+        timeAxis: {scale: 'day', step: 1}
+    };
+
+    var groups = new vis.DataSet([{id: 0, content: 'Lower Bound'}, {id: 1, content: 'Upper Bound'}]);
+
+    var graph2d = new vis.Graph2d(containerVis, datasetVis, optionsVis);
+    graph2d.setGroups(groups);
+    datasetVis.update(global_item[nxtTimeLineItem]);
+
+
+
+
+</script>
+
+
+</body>
+</html>

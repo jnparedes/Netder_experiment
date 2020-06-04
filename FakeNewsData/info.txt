@@ -1,0 +1,302 @@
+API ROBINHO
+Tuve que acortar el maximo de caracteres a 5000 para realizar las consultas debido al metodo HTTP GET
+Tengo contemplar una excepcion para el calculo de precision y recall
+Hay un parametro para especificar 'url' el cual no fue considerado porque no todos los datasets lo tenian disponible. 
+Tal vez ese podria mejorar la performance (?)
+El resultado de cada prediccion es relativo a :'fake_news', 'extremely_biased' y 'clickbait'. Sin embargo, solo fue considerado el valor para 'fake_news'. Adicionalmente tambien se obtienen una serie de palabras claves.
+
+RESULTADOS UTILIZANDO API ROBINHO Y DATASET LIAR LIAR PANTS ON FIRE
+
+'pants-fire','false','barely-true' se consideran como fakenews
+'half-true','mostly-true','true' se consideran como real
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.4126382306477093, 'recall': 0.2909982174688057}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.40405701754385964, 'recall': 0.1642156862745098}
+
+------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.4107142857142857, 'recall': 0.005124777183600713}
+
+'pants-fire' se consideran como fakenews
+'half-true','mostly-true','true','false','barely-true' se consideran como real
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.07804107424960506, 'recall': 0.2943980929678188}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.07401315789473684, 'recall': 0.16090584028605484}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.05357142857142857, 'recall': 0.003575685339690107}
+
+'pants-fire','false' se consideran como fakenews
+'half-true','mostly-true','true','barely-true' se consideran como real
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.24707740916271723, 'recall': 0.27593507410021173}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.2362938596491228, 'recall': 0.1520818630910374}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.21428571428571427, 'recall': 0.004234297812279464}
+
+'pants-fire','false','barely-true', 'half-true' se consideran como fakenews
+'mostly-true','true' se consideran como real
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.6559241706161137, 'recall': 0.3144501666161769}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.6469298245614035, 'recall': 0.17873371705543775}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.625, 'recall': 0.0053014238109663735}
+
+'pants-fire','false','barely-true', 'half-true', 'mostly-true' se consideran como fakenews
+'true' se consideran como real
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.8410742496050553, 'recall': 0.31083605791686125}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.8432017543859649, 'recall': 0.17958897711349836}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.8392857142857143, 'recall': 0.005488089677720691}
+
+
+RESULTADOS UTILIZANDO Xcheck Y DATASET LIAR LIAR PANTS ON FIRE
+
+'pants-fire','false','barely-true' se consideran como fakenews
+'half-true','mostly-true','true' se consideran como real
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.4361360363354381, 'recall': 0.8774236683753064}
+
+-------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.4362228081740277, 'recall': 0.5899264542010252}
+
+------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.4204301075268817, 'recall': 0.08714062848228214}
+
+'pants-fire' se consideran como fakenews
+'half-true','mostly-true','true','false','barely-true' se consideran como real
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.0836379749639969, 'recall': 0.9009546539379475}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.08371786420566908, 'recall': 0.6062052505966588}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.07419354838709677, 'recall': 0.08233890214797136}
+
+'pants-fire','false' se consideran como fakenews
+'half-true','mostly-true','true','barely-true' se consideran como real
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.2756175916694361, 'recall': 0.8782209671726086}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.2771918259723138, 'recall': 0.5937169078715143}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.26881720430107525, 'recall': 0.08824567596187786}
+
+'pants-fire', 'false', 'barely-true', 'half-true' se consideran como fakenews
+'mostly-true', 'true' se consideran como real
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.644289354159743, 'recall': 0.8810786244508407}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.6450230718523401, 'recall': 0.5929404635661264}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.6430107526881721, 'recall': 0.09059233449477352}
+
+'pants-fire', 'false', 'barely-true', 'half-true', 'mostly-true' se consideran como fakenews
+'true' se consideran como real
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.8356042982164618, 'recall': 0.8808828681536844}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.8366842452208306, 'recall': 0.5928996846899451}
+
+-----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.8354838709677419, 'recall': 0.09073922690645801}
+
+
+RESULTADOS UTILIZANDO API ROBINHO Y DATASET FAKE NEWS DETECTION
+
+-----------------------------------------------------------------
+CON PROBABIBLIDAD MAYOR A 0.2
+{'precision': 0.39824120603015073, 'recall': 0.5080128205128205}
+
+------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.2027491408934708, 'recall': 0.09455128205128205}
+
+------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.5, 'recall': 0.0005341880341880342}
+
+RESULTADOS UTILIZANDO API Xcheck Y DATASET FAKE NEWS DETECTION
+
+-----------------------------------------------------------------
+CON PROBABIBLIDAD MAYOR A 0.2
+{'precision': 0.5638380476982806, 'recall': 0.883692628650904}
+
+------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.5690080605362724, 'recall': 0.6013560500695411}
+
+------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.5485232067510548, 'recall': 0.09040333796940195}
+
+RESULTADOS UTILIZANDO API ROBINHO Y DATASET TextDB
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.6537089871611983, 'recall': 0.5793299620733249}
+
+---------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.7567567567567568, 'recall': 0.13274336283185842}
+
+------------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 1.0, 'recall': 0.0012642225031605564}
+
+RESULTADOS UTILIZANDO Xcheck Y DATASET TextDB
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.8788724532514652, 'recall': 0.9952591656131479}
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.9581119099718662, 'recall': 0.9687104930467763}
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.9929050059124951, 'recall': 0.7961441213653603}
+
+RESULTADOS UTILIZANDO API ROBINHO Y DATASET FakeNews
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.49852507374631266, 'recall': 0.7041666666666667}
+
+---------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.5081967213114754, 'recall': 0.25833333333333336}
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0, 'recall': 0.0}
+
+RESULTADOS UTILIZANDO API Xcheck Y DATASET FakeNews
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.5065502183406113, 'recall': 0.9666666666666667}
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.5359116022099447, 'recall': 0.8083333333333333}
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.6233766233766234, 'recall': 0.2}
+
+RESULTADOS UTILIZANDO API ROBINHO Y DATASET Celebrity
+
+--------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.4965034965034965, 'recall': 0.284}
+
+--------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.65, 'recall': 0.052}
+
+--------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0, 'recall': 0.0}
+
+RESULTADOS UTILIZANDO API Xcheck Y DATASET Celebrity
+
+------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.5050505050505051, 'recall': 1.0}
+
+------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.5238095238095238, 'recall': 0.924}
+
+------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.5891472868217055, 'recall': 0.304}
+
+RESULTADOS UTILIZANDO API ROBINHO Y DATASET FNDETECTION
+
+------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.5873617693522907, 'recall': 0.32319193324061196}
+
+----------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.5959429824561403, 'recall': 0.1889777468706537}
+
+---------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.5892857142857143, 'recall': 0.005737134909596662}
+
+RESULTADOS UTILIZANDO API Xcheck Y DATASET FNDETECTION
+
+------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.2
+{'precision': 0.4419406150583245, 'recall': 0.8933547695605574}
+
+------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.5
+{'precision': 0.4058252427184466, 'recall': 0.6720257234726688}
+
+------------------------------------------------------------
+CON PROBABILIDAD MAYOR A 0.9
+{'precision': 0.2398871119473189, 'recall': 0.13665594855305466}
