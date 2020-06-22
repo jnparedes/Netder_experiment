@@ -18,10 +18,10 @@ class NetDB:
 		self._comp_atoms['node'] = []
 		self._comp_atoms['edge'] = []
 		for node in self._net_diff_graph.getNodes():
-			self._comp_atoms['node'].append(Atom('node', [node.getId()]))
+			self._comp_atoms['node'].append(Atom('node', [Constant(node.getId())]))
 
 		for edge in self._net_diff_graph.getEdges():
-			self._comp_atoms['edge'].append(Atom('edge', [edge.getSource(), edge.getTarget()]))
+			self._comp_atoms['edge'].append(Atom('edge', [Constant(edge.getSource()), Constant(edge.getTarget())]))
 
 	def get_net_diff_graph(self):
 		return self._net_diff_graph

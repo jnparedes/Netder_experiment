@@ -20,11 +20,8 @@ class Evaluator:
 		vn=0
 		fn=0
 		for key in self._predictions.keys():
-			#print('prediccion:', key)
 			pred = self._predictions[key]
-			#print('pred:', pred)
 			gt = self._ground_truth[key]
-			#print('gt:', gt)
 
 			if (pred and gt):
 				vp = vp + 1
@@ -36,13 +33,17 @@ class Evaluator:
 				fn = fn + 1
 		precision = 0
 		recall = 0
+		f1 = None
 		if((vp + fp) != 0):
 			precision = vp / (vp + fp)
+		else:
+			precision = None
 		if((vp + fn) != 0):
 			recall = vp / (vp + fn)
+		else:
+			recall = None
+		if (not precision is None) and (not recall is None):
+			if precision != 0 or recall != 0:
+				f1 = 2 * (precision * recall) / (precision + recall)
 
-		#if precision == 0:
-		#	print('vp', vp)
-		#	print('fp', fp)
-
-		return {"fn": fn, "tn": vn, "tp": vp, "fp": fp, "precision" : precision, "recall" : recall}
+		return {"fn": fn, "tn": vn, "tp": vp, "fp": fp, "precision" : precision, "recall" : recall, 'f1': f1}

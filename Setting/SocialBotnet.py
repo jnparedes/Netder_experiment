@@ -5,17 +5,21 @@ import random
 
 class SocialBotnet:
 
-	def __init__(self, dataset = None, fn_prob = 1):
+	def __init__(self, dataset = None, fn_prob = 1, new_post_prob = 1):
 		self._members = []
 		self._posts = []
 		self._new_pub_factory = NewPublicationFactory(dataset)
 		self._fn_prob = fn_prob
+		self._new_post_prob = new_post_prob
 
 	def set_dataset(self, dataset):
 		self._new_pub_factory.set_dataset(dataset)
 
 	def set_fn_prob(self, fn_prob):
 		self._fn_prob = fn_prob
+
+	def set_new_post_prob(self, new_post_prob):
+		self._new_post_prob = new_post_prob
 
 	def add_member(self, node):
 		if not (node in self._members):
@@ -37,6 +41,13 @@ class SocialBotnet:
 
 
 		result = Atom("posted", [Constant(str(node)), Constant(str(index)), Constant(str(time))])
+
+		return result
+
+	def get_publication(self, node, time):
+		result = None
+		if random.random() <= self._new_post_prob:
+			result = self.get_new_publication(node, time)
 
 		return result
 

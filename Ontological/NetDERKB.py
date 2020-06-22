@@ -78,6 +78,7 @@ class NetDERKB:
 	def get_data_from_pred(self, pred):
 		return self._ont_db.get_atoms_from_pred(pred) + self._net_db.get_comp_from_pred(pred)
 
+
 	def remove_atoms_from_pred(self, pred):
 		self._ont_db.remove_atoms_from_pred(pred)
 
