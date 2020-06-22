@@ -11,6 +11,7 @@ class CFPublicationFN(AFPublication):
 		self._social_botnet.add_member(self._node.getId())
 		self._social_botnet.set_dataset(dataset)
 		self._social_botnet.set_fn_prob(fn_prob)
+		self._social_botnet.set_new_post_prob(new_post_prob)
 
 		aux_categories_order = copy.deepcopy(self._dataset.get_category_kinds())[1:]
 		self._categories_order = copy.deepcopy(self._dataset.get_category_kinds())[:1]
@@ -27,7 +28,7 @@ class CFPublicationFN(AFPublication):
 		return result
 
 	def get_publication(self):
-		result = super().get_publication()
+		result = self._social_botnet.get_publication(self._node.getId(), self._time)
 		self._time += 1
 		if not result is None:
 			self._history_publications.append(result)
