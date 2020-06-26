@@ -46,28 +46,11 @@ def get_csv_headers(csv_source):
 	return headers
 
 def save_csv(csv_source, data):
-	#fieldnames = get_csv_headers(csv_source)
 	fieldnames = {}
 	for key in data.keys():
 		fieldnames[key] = key
 	fieldnames = list(data.keys())
-	'''
-	read_data = []
-	with open(csv_source, 'w', newline='') as csvfile:
-		pass
-	with open(csv_source, 'r', newline='') as csvfile:
-		reader = csv.DictReader(csvfile)
-		read_data = list(reader)
-	if len(read_data) == 0:
-		with open(csv_source, 'w', newline='') as csvfile:
-			writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
-			writer.writerow(fieldnames)
-			print('holaaaaaaa')
-	else:
-		fieldnames = get_csv_headers(csv_source)'''
 	with open(csv_source, 'a+', newline='') as csvfile:
-		#reader = csv.DictReader(csvfile, fieldnames = fieldnames)
-		#read_data = list(reader)
 		read_data = []
 		writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
 		if os.stat(csv_source).st_size > 0:
@@ -204,13 +187,17 @@ for setting_values in setting_values_collection:
 		atom14 = Atom('hyp_is_resp', [Variable('UID2'), Variable('FN1')])
 		atom15 = Distinct(Variable('UID1'), Variable('UID2'))
 		atom16 = Atom('edge', [Variable('UID1'), Variable('UID2')])
+		atom17 = Atom('posted', [Variable('UID'), Variable('FN'), Variable('T')])
+		atom18 = Atom('hyp_malicious', [Variable('UID3')])
+		atom19 = Atom('closer', [Variable('UID1'), Variable('UID3')])
 		nct1 = NetCompTarget(atom16)
 
 
 		ont_head1 = Atom('hyp_fakenews', [Variable('FN')])
 		ont_head2 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN')])
 		ont_head3 = Atom('hyp_malicious', [Variable('UID')])
-		ont_head4 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')])]
+		ont_head4 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Atom('member', [Variable('UID3'), Variable('B')])]
+		ont_head5 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')])]
 
 		global_conditions = []
 		for glabel in category_glabels:
@@ -245,28 +232,34 @@ for setting_values in setting_values_collection:
 		tgd_counter += 1
 
 		#hyp_malicious(UID1) ^ hyp_malicious(UID2) ^ closer(UID1, UID2) ^ (V > \theta_2) ^ (UID1 != UID2) -> \exists B hyp_botnet(B) ^ member(UID1, B) ^ member(UID2, B)
-		tgd3 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom9, atom10, atom11], ont_head = ont_head4)
+		tgd3 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom9, atom10, atom11], ont_head = ont_head5)
 		#tgd3 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom13, atom14, atom15], ont_head = ont_head4)
 		tgd_counter += 1
 
 		tgd4 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom12], ont_head = [ont_head1])
 		tgd_counter += 1
 
-		tgd5 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom9, atom10], net_body = [nct1], ont_head = ont_head4)
+		tgd5 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom9, atom10], net_body = [nct1], ont_head = ont_head5)
 		tgd_counter += 1
 
 		tgd6 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom5], ont_head = [ont_head3])
 		tgd_counter += 1
 
-		tgds1.append(tgd1)
-		tgds3.append(tgd1)
-		tgds1.append(tgd2)
-		tgds3.append(tgd6)
+		tgd7 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [ont_head1, atom17], ont_head = [ont_head2])
+		tgd_counter += 1
+
 		tgds1.append(tgd4)
 		tgds2 = copy.deepcopy(tgds1)
+		tgds1.append(tgd2)
+		tgds2.append(tgd6)
+		tgds1.append(tgd1)
+		tgds2.append(tgd7)
 		tgds1.append(tgd3)
-		tgds3.append(tgd3)
 		tgds2.append(tgd5)
+		tgds3.append(tgd1)
+		tgds3.append(tgd2)
+		tgds3.append(tgd3)
+
 		egds = []
 		egd_counter = 0
 		#hyp_botnet(B1) ^ hyp_botnet(B2) ^ member(UID, B1) ^ member(UID, B2) ->  B1 = B2
@@ -410,7 +403,8 @@ for setting_values in setting_values_collection:
 			gt_fn_atoms.append([])
 			for j in range(time_sim):
 				gt_fn_atoms[i].append([])
-			
+		
+		
 		for i in range(len(orig_news_ground_truth_full)):
 			for key in orig_news_ground_truth_full[i].keys():
 				if orig_news_ground_truth_full[i][key]:
@@ -587,20 +581,7 @@ for setting_values in setting_values_collection:
 				result_eval1 = evaluator1.evaluate()
 				result_eval["fnA_prec"] = None
 				result_eval["fnA_rec"] = None
-				'''
-				if not result_eval1["precision"] is None:
-					reduced_result_eval["fnA_prec"]['total_value'] += result_eval1["precision"]
-				else:
-					reduced_result_eval["fnA_prec"]['total_samples'] -= 1
-				result_eval["fnA_rec"] = result_eval1["recall"]
-				if not result_eval1["recall"] is None:
-					reduced_result_eval["fnA_rec"]['total_value'] += result_eval1["recall"]
-				else:
-					reduced_result_eval["fnA_rec"]['total_samples'] -= 1
-				if not result_eval1["f1"] is None:
-					reduced_result_eval["fnA_f1"]['total_value'] += result_eval1["f1"]
-				else:
-					reduced_result_eval["fnA_f1"]['total_samples'] -= 1'''
+
 				reduced_result_eval["fnA"].append(result_eval1)
 				result_eval["fnA_tp"] = result_eval1["tp"]
 				result_eval["fnA_fp"] = result_eval1["fp"]
@@ -610,20 +591,7 @@ for setting_values in setting_values_collection:
 				result_eval2 = evaluator2.evaluate()
 				result_eval["resp_prec"] = None
 				result_eval["resp_rec"] = None
-				'''
-				if not result_eval2["precision"] is None:
-					reduced_result_eval["resp_prec"]['total_value'] += result_eval2["precision"]
-				else:
-					reduced_result_eval["resp_prec"]['total_samples'] -= 1
-				result_eval["resp_rec"] = result_eval2["recall"]
-				if not result_eval2["recall"] is None:
-					reduced_result_eval["resp_rec"]['total_value'] += result_eval2["recall"]
-				else:
-					reduced_result_eval["resp_rec"]['total_samples'] -= 1
-				if not result_eval2["f1"] is None:
-					reduced_result_eval["resp_f1"]['total_value'] += result_eval2["f1"]
-				else:
-					reduced_result_eval["resp_f1"]['total_samples'] -= 1'''
+				
 				reduced_result_eval["resp"].append(result_eval2)
 				result_eval["resp_tp"] = result_eval2["tp"]
 				result_eval["resp_fp"] = result_eval2["fp"]
@@ -633,20 +601,7 @@ for setting_values in setting_values_collection:
 				result_eval3 = evaluator3.evaluate()
 				result_eval["mal_prec"] = None
 				result_eval["mal_rec"] = None
-				'''
-				if not result_eval3["precision"] is None:
-					reduced_result_eval["mal_prec"]['total_value'] += result_eval3["precision"]
-				else:
-					reduced_result_eval["mal_prec"]['total_samples'] -= 1
-				result_eval["mal_rec"] = result_eval3["recall"]
-				if not result_eval3["recall"] is None:
-					reduced_result_eval["mal_rec"]['total_value'] += result_eval3["recall"]
-				else:
-					reduced_result_eval["mal_rec"]['total_samples'] -= 1
-				if not result_eval3["f1"] is None:
-					reduced_result_eval["mal_f1"]['total_value'] += result_eval3["f1"]
-				else:
-					reduced_result_eval["mal_f1"]['total_samples'] -= 1'''
+				
 				reduced_result_eval["mal"].append(result_eval3)
 				result_eval["mal_tp"] = result_eval3["tp"]
 				result_eval["mal_fp"] = result_eval3["fp"]
@@ -656,20 +611,7 @@ for setting_values in setting_values_collection:
 				result_eval4 = evaluator4.evaluate()
 				result_eval["memb_prec"] = None
 				result_eval["memb_rec"] = None
-				'''
-				if not result_eval4["precision"] is None:
-					reduced_result_eval["memb_prec"]['total_value'] += result_eval4["precision"]
-				else:
-					reduced_result_eval["memb_prec"]['total_samples'] -= 1
-				result_eval["memb_rec"] = result_eval4["recall"]
-				if not result_eval4["recall"] is None:
-					reduced_result_eval["memb_rec"]['total_value'] += result_eval4["recall"]
-				else:
-					reduced_result_eval["memb_rec"]['total_samples'] -= 1
-				if not result_eval4["f1"] is None:
-					reduced_result_eval["memb_f1"]['total_value'] += result_eval4["f1"]
-				else:
-					reduced_result_eval["memb_f1"]['total_samples'] -= 1'''
+				
 				reduced_result_eval["memb"].append(result_eval4)
 				result_eval["memb_tp"] = result_eval4["tp"]
 				result_eval["memb_fp"] = result_eval4["fp"]
@@ -679,20 +621,7 @@ for setting_values in setting_values_collection:
 				result_eval5 = evaluator5.evaluate()
 				result_eval["fnB_prec"] = None
 				result_eval["fnB_rec"] = None
-				'''
-				if not result_eval5["precision"] is None:
-					reduced_result_eval["fnB_prec"]['total_value'] += result_eval5["precision"]
-				else:
-					reduced_result_eval["fnB_prec"]['total_samples'] -= 1
-				result_eval["fnB_rec"] = result_eval5["recall"]
-				if not result_eval5["recall"] is None:
-					reduced_result_eval["fnB_rec"]['total_value'] += result_eval5["recall"]
-				else:
-					reduced_result_eval["fnB_rec"]['total_samples'] -= 1
-				if not result_eval5["f1"] is None:
-					reduced_result_eval["fnB_f1"]['total_value'] += result_eval5["f1"]
-				else:
-					reduced_result_eval["fnB_f1"]['total_samples'] -= 1'''
+				
 				reduced_result_eval["fnB"].append(result_eval5)
 				result_eval["fnB_tp"] = result_eval5["tp"]
 				result_eval["fnB_fp"] = result_eval5["fp"]
@@ -702,20 +631,7 @@ for setting_values in setting_values_collection:
 				result_eval6 = evaluator6.evaluate()
 				result_eval["fnC_prec"] = None
 				result_eval["fnC_rec"] = None
-				'''
-				if not result_eval6["precision"] is None:
-					reduced_result_eval["fnC_prec"]['total_value'] += result_eval6["precision"]
-				else:
-					reduced_result_eval["fnC_prec"]['total_samples'] -= 1
-				result_eval["fnC_rec"] = result_eval6["recall"]
-				if not result_eval6["recall"] is None:
-					reduced_result_eval["fnC_rec"]['total_value'] += result_eval6["recall"]
-				else:
-					reduced_result_eval["fnC_rec"]['total_samples'] -= 1
-				if not result_eval6["f1"] is None:
-					reduced_result_eval["fnC_f1"]['total_value'] += result_eval6["f1"]
-				else:
-					reduced_result_eval["fnC_f1"]['total_samples'] -= 1'''
+				
 				reduced_result_eval["fnC"].append(result_eval6)
 				result_eval["fnC_tp"] = result_eval6["tp"]
 				result_eval["fnC_fp"] = result_eval6["fp"]
@@ -732,15 +648,6 @@ for setting_values in setting_values_collection:
 				print('Tiempo chase consulta 1:', fin_q1 - inicio_q1)
 
 				result_eval["query_time"] = fin_q1 - inicio_q1
-
-				'''
-				with open('../result_netder_experiment.csv', 'a+', newline='') as csvfile:
-					fieldnames = ["setting", "run", "query_time", "time_sim", "hyp_fakenews", "hyp_fn_precision", "hyp_fn_recall", "hyp_fn1_precision", "hyp_fn1_recall", "hyp_fn2_precision", "hyp_fn2_recall", "hyp_fakenews_tp", "hyp_fakenews_fp", "hyp_fakenews_tn", "hyp_fakenews_fn", "hyp_is_resp", "h_resp_precision", "h_resp_recall", "hyp_is_resp_tp", "hyp_is_resp_fp", "hyp_is_resp_tn", "hyp_is_resp_fn", "hyp_is_malicious", "h_mal_precision", "h_mal_recall", "hyp_is_malicious_tp", "hyp_is_malicious_fp", "hyp_is_malicious_tn", "hyp_is_malicious_fn", "hyp_members", "h_memb_precision", "h_memb_recall", "hyp_members_tp", "hyp_members_fp", "hyp_members_tn", "hyp_members_fn"]
-					reader = csv.DictReader(csvfile)
-					writer = csv.DictWriter(csvfile, fieldnames = fieldnames)
-					#writer.writeheader()
-					writer.writerows(list(reader))
-					writer.writerow(result_eval)'''
 
 				if time == (time_sim - 1):
 					for key in reduced_result_eval.keys():
@@ -774,7 +681,7 @@ for setting_values in setting_values_collection:
 						else:
 							reduced_result_eval2[kb_index][str(key) + '_' + 'f1']['total_samples'] -= 1
 
-				save_csv('../result_netder_experiment_prog'+ str(kb_index + 1)+'.csv', result_eval)
+				save_csv('../result_netder_experiment_sett_' + setting_values['setting'] + '_prog'+ str(kb_index + 1)+'.csv', result_eval)
 			
 
 			
