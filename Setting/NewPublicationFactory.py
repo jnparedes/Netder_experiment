@@ -5,6 +5,7 @@ class NewPublicationFactory:
 		self._dataset = dataset
 		self._categories_order = categories_order
 		self._prob_categories = prob_categories
+		self._history = []
 
 	def set_dataset(self, dataset):
 		self._dataset = dataset
@@ -27,14 +28,13 @@ class NewPublicationFactory:
 				if random_value <= acum_prob:
 					category = self._categories_order[index]
 					break
-			while (not gt[key] == label) or (not self._dataset.get_category(key) == category):
+			while (not gt[key] == label) or (not self._dataset.get_category(key) == category) or (key in self._history):
+			#while (not gt[key] == label) or (not self._dataset.get_category(key) == category):
 				index_key = random.randint(0, len(gt_keys) - 1)
 				key = gt_keys[index_key]
-		'''else:
-			while (not self._dataset.get_category(key) == category):
-				index_key = random.randint(0, len(gt_keys) - 1)
-				key = gt_keys[index_key]'''
 		
+		self._history.append(key)
+
 		return key
 
 	def set_categories_order(self, categories_order):

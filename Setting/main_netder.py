@@ -269,7 +269,7 @@ for setting_values in setting_values_collection:
 
 		#query1 = NetDERQuery(exist_var = [], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')])], time = (2, 2))
 		#query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Distinct(Variable('UID1'), Variable('UID2'))], time = (2, 2))
-		query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Distinct(Variable('UID1'), Variable('UID2'))], time = (tmax, tmax))
+		query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')])], time = (tmax, tmax))
 		#query1 = NetDERQuery(exist_var = [], ont_cond = [Atom('hyp_fakenews', [Variable('X')])], time = (2, 2))
 		#query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Distinct(Variable('UID1'), Variable('UID2'))], time = (2, 2))
 
@@ -353,8 +353,7 @@ for setting_values in setting_values_collection:
 		node_index = 0
 		total_users = posts_db.get_nodes_id()
 		for node_index in range(len(total_users)):
-			for other_node_index in range(len(total_users)):
-				hyp_botnet_member_gt_full['(' + str(total_users[node_index]) + ',' + str(total_users[other_node_index]) + ')'] = False
+			hyp_botnet_member_gt_full[str(total_users[node_index])] = False
 		
 		botnets = posts_db.get_members_in_botnets()
 
@@ -365,24 +364,23 @@ for setting_values in setting_values_collection:
 			#users2 = copy.deepcopy(hist_pub.keys())
 			users = list(hist_pub.keys())
 			for node_index in range(len(users)):
-				for other_node_index in range(len(users)):
-					label = False
-					for botnet in botnets:
-						if users[node_index] in copy.deepcopy(botnet) and users[other_node_index] in copy.deepcopy(botnet):
-							label = True
-							break
-					found = False
-					for time_gt in orig_hyp_botnet_member_gt_time:
-						if '(' + str(users[node_index]) + ',' + str(users[other_node_index]) + ')' in time_gt.keys():
-							found = True
-							break
-					if not found:
-						hyp_botnet_member_gt['(' + str(users[node_index]) + ',' + str(users[other_node_index]) + ')'] = label
-						if label:
-							clone_time_log = copy.deepcopy(time_log)
-							clone_time_log['start'] = index
-							hyp_botnet_member_time['(' + str(users[node_index]) + ',' + str(users[other_node_index]) + ')'] = clone_time_log
-					hyp_botnet_member_gt_full['(' + str(users[node_index]) + ',' + str(users[other_node_index]) + ')'] = label
+				label = False
+				for botnet in botnets:
+					if users[node_index] in copy.deepcopy(botnet):
+						label = True
+						break
+				found = False
+				for time_gt in orig_hyp_botnet_member_gt_time:
+					if str(users[node_index]) in time_gt.keys():
+						found = True
+						break
+				if not found:
+					hyp_botnet_member_gt[str(users[node_index])] = label
+					if label:
+						clone_time_log = copy.deepcopy(time_log)
+						clone_time_log['start'] = index
+						hyp_botnet_member_time[str(users[node_index])] = clone_time_log
+				hyp_botnet_member_gt_full[str(users[node_index])] = label
 			orig_hyp_botnet_member_gt_time.append(hyp_botnet_member_gt)
 			index += 1
 
@@ -513,8 +511,8 @@ for setting_values in setting_values_collection:
 								if not value in hyp_is_mal_gt_time[time].keys():
 									hyp_is_mal_gt_time[time][value] = hyp_is_mal_gt_full[value]
 						
-						if 'UID1' in answer.keys() and 'UID2' in answer.keys():
-							value = '(' + str(answer['UID1'].getValue()) + ',' + str(answer['UID2'].getValue()) + ')'
+						if 'UID1' in answer.keys() :
+							value = str(answer['UID1'].getValue())
 							found = False
 							for t in range(time):
 								if value in answers_hyp_member[t]:
