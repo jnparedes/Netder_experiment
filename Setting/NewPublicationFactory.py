@@ -28,8 +28,8 @@ class NewPublicationFactory:
 				if random_value <= acum_prob:
 					category = self._categories_order[index]
 					break
-			while (not gt[key] == label) or (not self._dataset.get_category(key) == category) or (key in self._history):
-			#while (not gt[key] == label) or (not self._dataset.get_category(key) == category):
+			#while (not gt[key] == label) or (not self._dataset.get_category(key) == category) or (key in self._history):
+			while (not gt[key] == label) or (not self._dataset.get_category(key) == category):
 				index_key = random.randint(0, len(gt_keys) - 1)
 				key = gt_keys[index_key]
 		
