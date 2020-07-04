@@ -22,6 +22,7 @@ from Diffusion_Process.NetDiffLocalRule import NetDiffLocalRule
 from Diffusion_Process.NetDiffGlobalRule import NetDiffGlobalRule
 from Diffusion_Process.Average import Average
 from Diffusion_Process.Tipping import Tipping
+from Diffusion_Process.EnhancedTipping import EnhancedTipping
 from Ontological.NetDERKB import NetDERKB
 from Ontological.NetDB import NetDB
 from Ontological.NetDERChase import NetDERChase
@@ -35,6 +36,7 @@ from Ontological.Variable import Variable
 from Ontological.Constant import Constant
 from Ontological.PredictionsFakeNewsRob import PredictionsFakeNewsRob
 from Ontological.Null import Null
+from Ontological.NetCompTarget import NetCompTarget
 
 
 
@@ -82,6 +84,7 @@ for possibility in q_mapping_list:
 			print('clave', key, 'valor', mapping[key])
 	index += 1
 
+'''
 '''
 def remove_id_posts(csv_file, id_posts):
 	data = list()
@@ -197,35 +200,165 @@ for atom in atoms:
 evaluator1 = Evaluator(gt_map, fake_news_predicitions)
 
 print('evaluacion', evaluator1.evaluate())
-
 '''
+
+
 nodes = [NetDiffNode('0'), NetDiffNode('1'), NetDiffNode('2'), NetDiffNode('3')]
 edges = [NetDiffEdge('0', '1'), NetDiffEdge('0', '2'), NetDiffEdge('0', '3'), NetDiffEdge('2', '3')]
 
 graph = NetDiffGraph('graph', nodes, edges)
 
-glabel = GlobalLabel('gl')
-graph.setLabels([glabel])
+category_nlabels = []
+category_glabels = []
+category_kinds = ['A', 'B', 'C', 'D', 'E']
+for category in category_kinds:
+	category_nlabels.append(NLocalLabel(category))
+	category_glabels.append(GlobalLabel('trending(' + category + ')'))
 
+nodes[0].setLabels(category_nlabels)
+graph.setLabels(category_glabels)
 
-gc = (glabel, portion.closed(0.5, 1))
+local_rules = []
+for nlabel in category_nlabels:
+	#local_rules.append(NetDiffLocalRule(nlabel, [], 1, [(nlabel, portion.closed(1, 1))], [], Tipping(0.5, portion.closed(1, 1))))
+	local_rules.append(NetDiffLocalRule(nlabel, [], 1, [(nlabel, portion.closed(1, 1))], [], EnhancedTipping(0.5, portion.closed(1, 1))))
 
+global_rules = []
+index = 0
+for glabel in category_glabels:
+	global_rules.append(NetDiffGlobalRule(glabel, category_nlabels[index], [], Average()))
+	index += 1
+
+atom3 = Atom('user', [Variable('UID')])
+atom4 = Atom('earlyPoster', [Variable('UID'), Variable('FN')])
+atom5 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN1')])
+atom6 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN2')])
+atom7 = Distinct(Variable('FN1'), Variable('FN2'))
 atom8 = Atom('pre_hyp_fakenews', [Variable('FN')])
-news_category_atom = Atom('news_category', [Variable('FN'), Constant('A')])
+atom9 = Atom('hyp_malicious', [Variable('UID1')])
+atom10 = Atom('hyp_malicious', [Variable('UID2')])
+atom11 = Atom('closer', [Variable('UID1'), Variable('UID2')])
+atom12 = Atom('pre_hyp_fakenews2', [Variable('FN')])
+atom13 = Atom('hyp_is_resp', [Variable('UID1'), Variable('FN1')])
+atom14 = Atom('hyp_is_resp', [Variable('UID2'), Variable('FN1')])
+atom15 = Distinct(Variable('UID1'), Variable('UID2'))
+atom16 = Atom('edge', [Variable('UID1'), Variable('UID2')])
+atom17 = Atom('posted', [Variable('UID'), Variable('FN'), Variable('T')])
+atom18 = Atom('hyp_malicious', [Variable('UID3')])
+atom19 = Atom('closer', [Variable('UID1'), Variable('UID3')])
+atom20 = Atom('posted', [Variable('UID1'), Variable('FN'), Variable('T')])
+atom21 = Atom('posted', [Variable('UID2'), Variable('FN'), Variable('T')])
+nct1 = NetCompTarget(atom16)
+
+
 ont_head1 = Atom('hyp_fakenews', [Variable('FN')])
+ont_head2 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN')])
+ont_head3 = Atom('hyp_malicious', [Variable('UID')])
+#ont_head4 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Atom('member', [Variable('UID3'), Variable('B')])]
+ont_head5 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')])]
 
+global_conditions = []
+for glabel in category_glabels:
+	global_conditions.append((glabel, portion.closed(0.1, 1)))
+	#global_conditions.append((glabel, portion.closed(float(setting_values["trending_interval_lower"]), float(setting_values["trending_interval_upper"]))))
+
+tgds1 = []
+tgds2 = []
+tgds3 = []
+
+#news(FN, fake_level) ^ (fake_level > \theta_1) -> hyp_fakeNews(FN) : trending(FN)
+#pre_hyp_fakenews(FN) -> hyp_fakeNews(FN) : trending(FN)
+#pre_hyp_fakenews(FN) ^ news_category(FN, C)-> hyp_fakeNews(FN) : trending(C)
+tgd_counter = 0
+for gc in global_conditions:
+#tgds.append(NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom8], ont_head = [ont_head1], global_cond = [gc]))
+	news_category_atom = Atom('news_category', [Variable('FN'), Constant(category_kinds[tgd_counter])])
+	tgds1.append(NetDERTGD(rule_id = tgd_counter, ont_body = [atom8, news_category_atom], ont_head = [ont_head1], global_cond = [gc]))
+	tgd_counter += 1
+
+#hyp_fakeNews(FN) ^ earlyPoster(UID, FN) ^ user(UID, N) -> hyp_is_resp(UID, FN)
+#hyp_fakeNews(FN) ^ earlyPoster(UID, FN) -> hyp_is_resp(UID, FN)
+
+tgd1 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom4], ont_head = [ont_head2])
+tgd_counter += 1
+
+#(V1) hyp_is_resp(UID, FN1) ^ hyp_is_resp(UID, FN2) ^ (FN1 != FN2) -> hyp_malicious(UID)
+#(V2) hyp_is_resp(UID, FN1) -> hyp_malicious(UID)
+
+tgd2 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom5, atom6, atom7], ont_head = [ont_head3])
+#tgd2 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom5], ont_head = [ont_head3])
+tgd_counter += 1
+
+#hyp_malicious(UID1) ^ hyp_malicious(UID2) ^ closer(UID1, UID2) ^ (V > \theta_2) ^ (UID1 != UID2) -> \exists B hyp_botnet(B) ^ member(UID1, B) ^ member(UID2, B)
+tgd3 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom9, atom10, atom11], ont_head = ont_head5)
+#tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom13, atom14, atom15], ont_head = ont_head5)
+#tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom20, atom21, atom15], ont_head = ont_head5)
+tgd_counter += 1
+
+tgd4 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom12], ont_head = [ont_head1])
+tgd_counter += 1
+
+tgd5 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom9, atom10], net_body = [nct1], ont_head = ont_head5)
+tgd_counter += 1
+
+tgd6 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom5], ont_head = [ont_head3])
+tgd_counter += 1
+
+tgd7 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom17], ont_head = [ont_head2])
+tgd_counter += 1
+
+tgds1.append(tgd4)
+tgds2 = copy.deepcopy(tgds1)
+tgds1.append(tgd2)
+tgds2.append(tgd6)
+tgds1.append(tgd1)
+tgds2.append(tgd7)
+tgds1.append(tgd3)
+tgds2.append(tgd5)
+tgds3.append(tgd1)
+tgds3.append(tgd2)
+tgds3.append(tgd3)
+
+egds = []
+egd_counter = tgd_counter + 1
+#hyp_botnet(B1) ^ hyp_botnet(B2) ^ member(UID, B1) ^ member(UID, B2) ->  B1 = B2
+egd1 = NetDEREGD(rule_id = egd_counter, ont_body = [Atom('member', [Variable('UID'), Variable('B1')]), Atom('member', [Variable('UID'), Variable('B2')])], head = [Variable('B1'), Variable('B2')])
+
+egds.append(egd1)
+
+
+
+#glabel = GlobalLabel('gl')
+#graph.setLabels([glabel])
+
+
+#gc = (glabel, portion.closed(0.5, 1))
+
+#atom8 = Atom('pre_hyp_fakenews', [Variable('FN')])
+#news_category_atom = Atom('news_category', [Variable('FN'), Constant('A')])
+#ont_head1 = Atom('hyp_fakenews', [Variable('FN')])
+
+#tgds = []
 #tgd = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom8, news_category_atom], ont_head = [ont_head1], global_cond = [gc])
-tgd_counter = 0 
-tgd = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom8, news_category_atom], ont_head = [ont_head1], global_cond = [])
-tgds.append(tgd)
+#tgd_counter = 0 
+#tgd = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom8, news_category_atom], ont_head = [ont_head1], global_cond = [])
+#tgds.append(tgd)
 
+tmax = 2
 facts = []
-atoms = [Atom('pre_hyp_fakenews', [Constant('fn1')]), Atom('news_category', [Constant('fn1'), Constant('A')])]
+for n in nodes:
+	facts.append(NetDiffFact(n, NLocalLabel('C'), portion.closed(1,1), 0, tmax))
+atoms = [Atom('pre_hyp_fakenews', [Constant('fn1')]), Atom('news_category', [Constant('fn1'), Constant('C')]), Atom('pre_hyp_fakenews', [Constant('fn2')]), Atom('news_category', [Constant('fn2'), Constant('C')]), Atom('earlyPoster', [Constant('1'), Constant('fn1')]), Atom('earlyPoster', [Constant('1'), Constant('fn2')]), Atom('earlyPoster', [Constant('2'), Constant('fn3')]), Atom('earlyPoster', [Constant('2'), Constant('fn4')]), Atom('closer', [Constant('1'), Constant('2')]), Atom('pre_hyp_fakenews2', [Constant('fn3')]), Atom('pre_hyp_fakenews2', [Constant('fn4')])]
 
-kb = NetDERKB(ont_data = atoms, net_db = NetDB(graph, facts), netder_tgds = tgds, netder_egds = [], netdiff_lrules = [], netdiff_grules = [])
-chase = NetDERChase(kb, 1)
+kb = NetDERKB(ont_data = atoms, net_db = NetDB(graph, facts), netder_tgds = tgds1, netder_egds = egds, netdiff_lrules = local_rules, netdiff_grules = global_rules)
 
-query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Distinct(Variable('UID1'), Variable('UID2'))], time = (2, 2))
+chase = NetDERChase(kb, tmax)
+
+query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')])], time = (tmax, tmax))
 
 answers = chase.answer_query(query1, 1)
-'''
+for ans in answers:
+	for key in ans.keys():
+		print(key, ans[key])
+
+

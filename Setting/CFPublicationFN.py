@@ -1,5 +1,5 @@
-from AFPublication import AFPublication
-from SocialBotnet import SocialBotnet
+from Setting.AFPublication import AFPublication
+from Setting.SocialBotnet import SocialBotnet
 import random
 import copy
 

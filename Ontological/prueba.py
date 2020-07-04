@@ -1,5 +1,8 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+from OntDB import OntDB
+from Homomorphism import Homomorphism
+from Distinct import Distinct
 from Variable import Variable
 from Constant import Constant
 from Atom import Atom
@@ -18,7 +21,7 @@ from Diffusion_Process.NLocalLabel import NLocalLabel
 from Diffusion_Process.GlobalLabel import GlobalLabel
 import copy
 import portion
-
+'''
 tmax = 1
 nodes = [NetDiffNode('0'), NetDiffNode('1'), NetDiffNode('2'), NetDiffNode('3')]
 edges = [NetDiffEdge('0', '1'), NetDiffEdge('2', '1'), NetDiffEdge('2', '3')]
@@ -79,7 +82,6 @@ for comp in kb.get_net_diff_graph().get_components():
 
 print(chase.applyStepEGDChase(egd2, (0,1)))
 
-'''
 new_atoms = chase.applyStepTGDChase(tgd)
 
 kb.add_atoms(new_atoms)
@@ -96,3 +98,18 @@ for atom in kb.get_ont_data():
 	print(str(atom))
 
 '''
+#a1 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN1')])
+#a2 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN2')])
+#a3 = Distinct(Variable('FN1'), Variable('FN2'))
+a1 = Atom('hyp_is_resp', [Variable('X'), Variable('Y')])
+a2 = Atom('hyp_is_resp', [Variable('Z'), Variable('Y')])
+a3 = Distinct(Variable('X'), Variable('Z'))
+a4 = Atom('hyp_is_resp', [Variable('UID1'), Variable('FN1')])
+a5 = Atom('hyp_is_resp', [Variable('UID2'), Variable('FN1')])
+a6 = Distinct(Variable('UID1'), Variable('UID2'))
+#a4 = Atom('hyp_is_resp', [Variable('X'), Variable('Y')])
+#a5 = Atom('hyp_is_resp', [Variable('X'), Variable('Z')])
+#a6 = Distinct(Variable('Y'), Variable('Z'))
+ontdb1 = OntDB([a1,a2,a3])
+ontdb2 = OntDB([a4,a5,a6])
+print(ontdb1.is_equivalent(ontdb2))

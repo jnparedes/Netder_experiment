@@ -5,7 +5,10 @@ class Homomorphism:
 		result = []
 		for data in data_base:
 			if atom.is_mapped(data):
-				result.append(atom.get_mapping(data))
+				mapping = atom.get_mapping(data)
+				result.append(mapping)
+				if mapping == {}:
+					break
 		if len(result) == 0:
 			result = None
 		

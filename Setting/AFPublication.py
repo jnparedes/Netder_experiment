@@ -5,7 +5,7 @@ import random
 import copy
 from Ontological.Atom import Atom
 from Ontological.Constant import Constant
-from NewPublicationFactory import NewPublicationFactory
+from Setting.NewPublicationFactory import NewPublicationFactory
 
 class AFPublication(ABC):
 

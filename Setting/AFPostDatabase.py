@@ -6,9 +6,9 @@ from Diffusion_Process.NLocalLabel import NLocalLabel
 from Diffusion_Process.NetDiffFact import NetDiffFact
 from Diffusion_Process.NetDiffNode import NetDiffNode
 from Ontological.PredictionsFakeNewsRob import PredictionsFakeNewsRob
-from CFPublicationFN import CFPublicationFN
-from CFPublicationRN import CFPublicationRN
-from SocialBotnet import SocialBotnet
+from Setting.CFPublicationFN import CFPublicationFN
+from Setting.CFPublicationRN import CFPublicationRN
+from Setting.SocialBotnet import SocialBotnet
 
 class AFPostDatabase(ABC):
 
@@ -152,6 +152,9 @@ class AFPostDatabase(ABC):
 			result.append(botnet.get_members())
 
 		return result
+
+	def get_botnets(self):
+		return self._social_botnets
 
 	def set_setting_values(self, setting_values):
 		self._predictions.set_results_loc(setting_values['results_loc'])

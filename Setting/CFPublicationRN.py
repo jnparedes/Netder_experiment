@@ -1,6 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from AFPublication import AFPublication
+from Setting.AFPublication import AFPublication
 import random
 from Ontological.Atom import Atom
 from Ontological.Constant import Constant

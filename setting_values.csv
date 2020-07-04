@@ -1,2 +1,2 @@
 setting,cant_run,fk_threshold,tmax,time_sim,trending_interval_lower,trending_interval_upper,cant_botnet,sb_prob,fn_prob,malicious_prop,new_post_prob_mal,new_post_prob_no_mal,share_post_prob,csv_graph_location,results_loc
-12,10,0.2,2,15,0.7,1,1,0.25,0.6,0.2,0.5,0.05,0.2,"../graph_data/graph(n=150, e=495).csv",../FakeNewsData/results/res_Liar.json
+12,3,0.2,2,15,0.7,1,1,0.25,0.6,0.2,0.5,0.05,0.2,"../graph_data/graph(n=150, e=495).csv",../FakeNewsData/results/res_Liar.json

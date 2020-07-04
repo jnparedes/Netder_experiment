@@ -6,6 +6,7 @@ from datetime import datetime
 from Ontological.Variable import Variable
 from Ontological.Null import Null
 from Ontological.OntDB import OntDB
+from Ontological.Homomorphism import Homomorphism
 from Diffusion_Process.NetDiffProgram import NetDiffProgram
 from Diffusion_Process.NetDiffInterpretation import NetDiffInterpretation
 
@@ -18,6 +19,7 @@ class NetDERChase:
 		self._body_mapping_his = []
 		self._rule_map_his = {}
 
+	'''
 	def _get_atom_mapping(self, atom, data_base):
 		result = []
 		for data in data_base:
@@ -29,10 +31,10 @@ class NetDERChase:
 		if len(result) == 0:
 			result = None
 		
-		return result
+		return result'''
 
 	def _get_atoms_mapping(self, atoms, data_base):
-		aux_result = [[]]
+		'''aux_result = [[]]
 		aux_mapped_atoms = [copy.deepcopy(atoms)]
 
 		for index in range(0, len(atoms)):
@@ -51,8 +53,9 @@ class NetDERChase:
 						for otherAtom in cloned_mapped_atoms:
 							otherAtom.map(mapping_atom)
 	
-						aux_mapped_atoms.append(cloned_mapped_atoms)
-
+						aux_mapped_atoms.append(cloned_mapped_atoms)'''
+		h = Homomorphism()
+		aux_result = h.get_atoms_mapping(atoms, data_base)
 		return aux_result
 
 	def _get_candidate_atoms(self, rule):
@@ -88,6 +91,8 @@ class NetDERChase:
 
 		#body_mapping = self._get_atoms_mapping(rule.get_ont_body() + net_db, self._kb.get_ont_data() + self._kb.get_net_data())
 		body_mapping = self._search_body_mapping(rule.get_ont_body() + net_db)
+		if rule.get_id() == 7:
+			print('body_mapping', body_mapping)
 
 		if body_mapping is None:
 			body_mapping = self._get_atoms_mapping(rule.get_ont_body() + net_db, self._get_candidate_atoms(rule))
