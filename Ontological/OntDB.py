@@ -74,7 +74,6 @@ class OntDB:
 
 	def is_equivalent(self, ont_db):
 		result = False
-		'''
 		if self._size == ont_db.get_size():
 			success = True
 			other_atoms = copy.deepcopy(ont_db.get_atoms())
@@ -123,7 +122,7 @@ class OntDB:
 								break
 
 						if aux_result:
-							result = True'''
+							result = True
 						
 
 		return result

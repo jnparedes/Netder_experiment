@@ -19,41 +19,8 @@ class NetDERChase:
 		self._body_mapping_his = []
 		self._rule_map_his = {}
 
-	'''
-	def _get_atom_mapping(self, atom, data_base):
-		result = []
-		for data in data_base:
-			if atom.is_mapped(data):
-				mapping = atom.get_mapping(data)
-				result.append(mapping)
-				if mapping == {}:
-					break
-		if len(result) == 0:
-			result = None
-		
-		return result'''
 
 	def _get_atoms_mapping(self, atoms, data_base):
-		'''aux_result = [[]]
-		aux_mapped_atoms = [copy.deepcopy(atoms)]
-
-		for index in range(0, len(atoms)):
-			mapped_atoms = aux_mapped_atoms
-			result = aux_result
-			aux_mapped_atoms = []
-			aux_result = []
-			for ma_index in range(0, len(mapped_atoms)):
-				mapping_atom_list = self._get_atom_mapping(mapped_atoms[ma_index][index], data_base)
-				if (not mapping_atom_list is None):
-					for mapping_atom in mapping_atom_list:
-						other_mapping = copy.deepcopy(result[ma_index])
-						other_mapping.append(mapping_atom)
-						aux_result.append(other_mapping)
-						cloned_mapped_atoms = copy.deepcopy(mapped_atoms[ma_index])
-						for otherAtom in cloned_mapped_atoms:
-							otherAtom.map(mapping_atom)
-	
-						aux_mapped_atoms.append(cloned_mapped_atoms)'''
 		h = Homomorphism()
 		aux_result = h.get_atoms_mapping(atoms, data_base)
 		return aux_result
@@ -72,12 +39,13 @@ class NetDERChase:
 		return candidates
 
 	def _search_body_mapping(self, atoms):
-		ont_bd = OntDB(atoms)
+		#ont_bd = OntDB(atoms)
 		result = None
+		'''
 		for bm in self._body_mapping_his:
 			if ont_bd.is_equivalent(bm[0]):
 				result = bm[1]
-				break
+				break'''
 
 		return result
 
@@ -91,8 +59,7 @@ class NetDERChase:
 
 		#body_mapping = self._get_atoms_mapping(rule.get_ont_body() + net_db, self._kb.get_ont_data() + self._kb.get_net_data())
 		body_mapping = self._search_body_mapping(rule.get_ont_body() + net_db)
-		if rule.get_id() == 7:
-			print('body_mapping', body_mapping)
+			
 
 		if body_mapping is None:
 			body_mapping = self._get_atoms_mapping(rule.get_ont_body() + net_db, self._get_candidate_atoms(rule))

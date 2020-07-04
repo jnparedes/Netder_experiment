@@ -348,17 +348,22 @@ tmax = 2
 facts = []
 for n in nodes:
 	facts.append(NetDiffFact(n, NLocalLabel('C'), portion.closed(1,1), 0, tmax))
-atoms = [Atom('pre_hyp_fakenews', [Constant('fn1')]), Atom('news_category', [Constant('fn1'), Constant('C')]), Atom('pre_hyp_fakenews', [Constant('fn2')]), Atom('news_category', [Constant('fn2'), Constant('C')]), Atom('earlyPoster', [Constant('1'), Constant('fn1')]), Atom('earlyPoster', [Constant('1'), Constant('fn2')]), Atom('earlyPoster', [Constant('2'), Constant('fn3')]), Atom('earlyPoster', [Constant('2'), Constant('fn4')]), Atom('closer', [Constant('1'), Constant('2')]), Atom('pre_hyp_fakenews2', [Constant('fn3')]), Atom('pre_hyp_fakenews2', [Constant('fn4')])]
-
-kb = NetDERKB(ont_data = atoms, net_db = NetDB(graph, facts), netder_tgds = tgds1, netder_egds = egds, netdiff_lrules = local_rules, netdiff_grules = global_rules)
+atoms1 = [Atom('pre_hyp_fakenews', [Constant('fn1')]), Atom('news_category', [Constant('fn1'), Constant('C')]), Atom('pre_hyp_fakenews', [Constant('fn2')]), Atom('news_category', [Constant('fn2'), Constant('C')]), Atom('earlyPoster', [Constant('1'), Constant('fn1')]), Atom('earlyPoster', [Constant('1'), Constant('fn2')]), Atom('earlyPoster', [Constant('2'), Constant('fn3')]), Atom('earlyPoster', [Constant('2'), Constant('fn4')]), Atom('closer', [Constant('1'), Constant('2')])]
+atoms2 = [Atom('pre_hyp_fakenews2', [Constant('fn3')]), Atom('pre_hyp_fakenews2', [Constant('fn4')])]
+atoms = [atoms1, atoms2]
+kb = NetDERKB(ont_data = [], net_db = NetDB(graph, facts), netder_tgds = tgds1, netder_egds = egds, netdiff_lrules = local_rules, netdiff_grules = global_rules)
 
 chase = NetDERChase(kb, tmax)
 
 query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')])], time = (tmax, tmax))
 
-answers = chase.answer_query(query1, 1)
-for ans in answers:
-	for key in ans.keys():
-		print(key, ans[key])
-
-
+iteracion = 0
+for a in atoms:
+	print('iteracion', iteracion)
+	kb.add_ont_knowledge(a)
+	answers = chase.answer_query(query1, 1)
+	for ans in answers:
+		for key in ans.keys():
+			print(key, ans[key])
+	iteracion += 1
+		
