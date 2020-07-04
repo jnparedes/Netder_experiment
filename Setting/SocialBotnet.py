@@ -11,8 +11,6 @@ class SocialBotnet:
 		self._new_pub_factory = NewPublicationFactory(dataset)
 		self._fn_prob = fn_prob
 		self._new_post_prob = new_post_prob
-		self._counter = 0
-		self._total_counter = 0
 
 	def set_dataset(self, dataset):
 		self._new_pub_factory.set_dataset(dataset)
@@ -38,8 +36,6 @@ class SocialBotnet:
 		index = None
 		if node in self._members:
 			index = self._new_pub_factory.get_index_new_publ(label)
-			if label:
-				self._counter += 1
 
 			self._posts.append(index)
 
