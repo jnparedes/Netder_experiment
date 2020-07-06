@@ -39,8 +39,6 @@ class Atom:
 			otherTerm = mapping.get(self._terms[i].getId())
 			if (otherTerm != None):
 				if (self._terms[i].can_be_instanced()):
-					#self._terms[i].setId(otherTerm.getId())
-					#self._terms[i].setValue(otherTerm.getValue())
 					self._terms.remove(self._terms[i])
 					self._terms.insert(i, otherTerm)
 				elif (not self._terms[i].getValue() == otherTerm.getValue()):

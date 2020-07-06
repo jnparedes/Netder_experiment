@@ -10,6 +10,7 @@ from FakeNewsData.DatasetCSVLiar import DatasetCSVLiar
 from FakeNewsData.AugmentedDatasetTextFilesCelebrity import AugmentedDatasetTextFilesCelebrity
 from Setting.AFPostDatabase import AFPostDatabase
 from Setting.EarlyPoster import EarlyPoster
+from Setting.PreMember import PreMember
 from Setting.Closer import Closer
 from Setting.NewsCategory import NewsCategory
 from Setting.Evaluator import Evaluator
@@ -85,8 +86,10 @@ programs = ['alpha', 'beta', 'alpha*']
 
 for setting_values in setting_values_collection:
 	total_botnets_fn_det = []
+	total_botnets_fn_det2 = []
 	for index in range(len(programs)):
 		total_botnets_fn_det.append(0)
+		total_botnets_fn_det2.append(0)
 	total_botnets_fn = 0
 	result_eval = {}
 	result_eval["query_time"] = None
@@ -99,6 +102,7 @@ for setting_values in setting_values_collection:
 		rr['sett'] = None
 		rr['bn_fn'] = None
 		rr['bn_fn_det'] = None
+		rr['bn_fn_det2'] = None
 		for header in get_csv_headers('../reduced_result_exp_headers.csv'):
 			rr[str(header)] = {'total_value': 0, 'total_samples': int(setting_values["cant_run"])}
 
@@ -195,8 +199,8 @@ for setting_values in setting_values_collection:
 		atom10 = Atom('hyp_malicious', [Variable('UID2')])
 		atom11 = Atom('closer', [Variable('UID1'), Variable('UID2')])
 		atom12 = Atom('pre_hyp_fakenews2', [Variable('FN')])
-		atom13 = Atom('hyp_is_resp', [Variable('UID1'), Variable('FN1')])
-		atom14 = Atom('hyp_is_resp', [Variable('UID2'), Variable('FN1')])
+		atom13 = Atom('hyp_my_resp', [Variable('FN1'), Variable('UID1')])
+		atom14 = Atom('hyp_my_resp', [Variable('FN1'), Variable('UID2')])
 		atom15 = Distinct(Variable('UID1'), Variable('UID2'))
 		atom16 = Atom('edge', [Variable('UID1'), Variable('UID2')])
 		atom17 = Atom('posted', [Variable('UID'), Variable('FN'), Variable('T')])
@@ -204,14 +208,23 @@ for setting_values in setting_values_collection:
 		atom19 = Atom('closer', [Variable('UID1'), Variable('UID3')])
 		atom20 = Atom('posted', [Variable('UID1'), Variable('FN'), Variable('T')])
 		atom21 = Atom('posted', [Variable('UID2'), Variable('FN'), Variable('T')])
+		atom22 = Atom('hyp_is_resp', [Variable('UID1'), Variable('FN1')])
+		atom23 = Atom('hyp_is_resp', [Variable('UID2'), Variable('FN2')])
+		atom24 = Atom('pre_hyp_mal', [Variable('UID'), Variable('UID'), Variable('FN1'), Variable('FN2')])
+		atom25 = Atom('pre_hyp_mal', [Variable('UID1'), Variable('UID2'), Variable('FN1'), Variable('FN1')])
+		atom26 = Atom('earlyPoster', [Variable('UID1'), Variable('FN')])
+		atom27 = Atom('earlyPoster', [Variable('UID2'), Variable('FN')])
+		atom28 = Atom('pre_member', [Variable('UID1'), Variable('UID2'), Variable('FN')])
 		nct1 = NetCompTarget(atom16)
 
 
 		ont_head1 = Atom('hyp_fakenews', [Variable('FN')])
 		ont_head2 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN')])
 		ont_head3 = Atom('hyp_malicious', [Variable('UID')])
-		#ont_head4 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Atom('member', [Variable('UID3'), Variable('B')])]
+		ont_head4 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Atom('member', [Variable('UID3'), Variable('B')])]
 		ont_head5 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')])]
+		ont_head8 = Atom('pre_hyp_mal', [Variable('UID1'), Variable('UID2'), Variable('FN1'), Variable('FN2')])
+		ont_head9 = Atom('hyp_my_resp', [Variable('FN'), Variable('UID')])
 
 		global_conditions = []
 		for glabel in category_glabels:
@@ -242,13 +255,16 @@ for setting_values in setting_values_collection:
 		#(V2) hyp_is_resp(UID, FN1) -> hyp_malicious(UID)
 
 		tgd2 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom5, atom6, atom7], ont_head = [ont_head3])
-		#tgd2 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom5], ont_head = [ont_head3])
+		#tgd2 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom22, atom23], ont_head = [ont_head8])
 		tgd_counter += 1
 
 		#hyp_malicious(UID1) ^ hyp_malicious(UID2) ^ closer(UID1, UID2) ^ (V > \theta_2) ^ (UID1 != UID2) -> \exists B hyp_botnet(B) ^ member(UID1, B) ^ member(UID2, B)
-		tgd3 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom9, atom10, atom11], ont_head = ont_head5)
+		tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom9, atom10, atom11], ont_head = ont_head5)
 		#tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom13, atom14, atom15], ont_head = ont_head5)
 		#tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom20, atom21, atom15], ont_head = ont_head5)
+		#tgd3 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom25, atom15], ont_head = ont_head5)
+		#tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom26, atom27, atom15], ont_head = ont_head5)
+		#tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom28, ont_head1], ont_head = ont_head5)
 		tgd_counter += 1
 
 		tgd4 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom12], ont_head = [ont_head1])
@@ -263,6 +279,9 @@ for setting_values in setting_values_collection:
 		tgd7 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom17], ont_head = [ont_head2])
 		tgd_counter += 1
 
+		tgd8 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom24, atom7], ont_head = [ont_head3])
+		tgd_counter += 1
+
 		tgds1.append(tgd4)
 		tgds2 = copy.deepcopy(tgds1)
 		tgds1.append(tgd2)
@@ -270,10 +289,12 @@ for setting_values in setting_values_collection:
 		tgds1.append(tgd1)
 		tgds2.append(tgd7)
 		tgds1.append(tgd3)
+		#tgds1.append(tgd8)
 		tgds2.append(tgd5)
 		tgds3.append(tgd1)
 		tgds3.append(tgd2)
 		tgds3.append(tgd3)
+		#tgds3.append(tgd8)
 
 		egds = []
 		egd_counter = tgd_counter + 1
@@ -419,6 +440,7 @@ for setting_values in setting_values_collection:
 
 
 		earlyPoster = EarlyPoster(posts_db)
+		preMember = PreMember(earlyPoster)
 		closer = Closer(posts_db)
 		news_category = NewsCategory(posts_db)
 
@@ -459,6 +481,7 @@ for setting_values in setting_values_collection:
 			answers_hyp_member = []
 			reduced_result_eval = {}
 			botnets_fn_det = 0
+			fn_tps = 0
 			for item in ['fnA', 'fnB', 'fnC', 'resp', 'mal', 'memb']:
 				reduced_result_eval[item] = []
 
@@ -474,6 +497,7 @@ for setting_values in setting_values_collection:
 				result_eval['fn'] = total_fn_time[time]
 				result_eval['bn_fn'] = None
 				result_eval['bn_fn_det'] = None
+				result_eval['bn_fn_det2'] = None
 				
 
 				#atoms = atoms + ont_db[time]
@@ -515,6 +539,8 @@ for setting_values in setting_values_collection:
 									break
 							if not found:
 								answers_hyp_fakenews[time].append(value)
+								if news_dataset_ground_truth[value]:
+									fn_tps += 1
 								if value in botnets_fn:
 									botnets_fn_det += 1
 								
@@ -689,6 +715,9 @@ for setting_values in setting_values_collection:
 					if len(botnets_fn) != 0:
 						result_eval['bn_fn_det'] = botnets_fn_det / len(botnets_fn)
 						total_botnets_fn_det[kb_index] += result_eval['bn_fn_det']
+					if fn_tps != 0:
+						result_eval['bn_fn_det2'] = botnets_fn_det / fn_tps
+						total_botnets_fn_det2[kb_index] += result_eval['bn_fn_det2']
 					for key in reduced_result_eval.keys():
 						tp = 0
 						fp = 0
@@ -700,6 +729,7 @@ for setting_values in setting_values_collection:
 							tp += evaluator['tp']
 							fp += evaluator['fp']
 							fn += evaluator['fn']
+						
 						if (fp + tp) != 0:
 							prec = tp / (fp + tp)
 							reduced_result_eval2[kb_index][str(key) + '_' + 'prec']['total_value'] += prec
@@ -780,6 +810,7 @@ for setting_values in setting_values_collection:
 		rr['sett'] = setting_values['setting']
 		rr['bn_fn'] = total_botnets_fn / int(setting_values["cant_run"])
 		rr['bn_fn_det'] = total_botnets_fn_det[rr_counter] / int(setting_values["cant_run"])
+		rr['bn_fn_det2'] = total_botnets_fn_det2[rr_counter] / int(setting_values["cant_run"])
 		save_csv('../reduced_result_experiment.csv', rr)
 		rr_counter += 1
 

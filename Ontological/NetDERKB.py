@@ -27,9 +27,6 @@ class NetDERKB:
 			success = success or result
 
 		return success
-			#if not atom in self._ont_data:
-			#	self._ont_data.append(atom)		
-		#self._ont_data = self._ont_data + copy.deepcopy(atoms)
 
 	def add_net_knowledge(self, knowledge, time):
 		self._net_db.add_knowledge(knowledge, time)
@@ -66,14 +63,6 @@ class NetDERKB:
 
 	def apply_map(self, mapping):
 		self._ont_db.apply_mapping(mapping)
-		'''
-		aux_ont_data = []
-		for atom in self._ont_data:
-			atom.map(mapping)
-			if (not (atom in aux_ont_data)):
-				aux_ont_data.append(atom)
-
-		self._ont_data = aux_ont_data'''
 
 	def get_data_from_pred(self, pred):
 		return self._ont_db.get_atoms_from_pred(pred) + self._net_db.get_comp_from_pred(pred)

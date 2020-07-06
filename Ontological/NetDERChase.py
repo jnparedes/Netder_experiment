@@ -39,13 +39,13 @@ class NetDERChase:
 		return candidates
 
 	def _search_body_mapping(self, atoms):
-		#ont_bd = OntDB(atoms)
+		ont_bd = OntDB(atoms)
 		result = None
-		'''
+
 		for bm in self._body_mapping_his:
 			if ont_bd.is_equivalent(bm[0]):
 				result = bm[1]
-				break'''
+				break
 
 		return result
 
@@ -57,7 +57,6 @@ class NetDERChase:
 
 
 
-		#body_mapping = self._get_atoms_mapping(rule.get_ont_body() + net_db, self._kb.get_ont_data() + self._kb.get_net_data())
 		body_mapping = self._search_body_mapping(rule.get_ont_body() + net_db)
 			
 
@@ -90,7 +89,6 @@ class NetDERChase:
 										aux_body_mapping.append(possibility)
 
 					else:
-					#elif len(rule.get_global_cond()) > 0:
 						for t in range(time[0], time[1] + 1):
 							if self._net_diff_interpretation.areSatisfied(t, self._kb.get_net_diff_graph(), rule.get_global_cond()):
 								aux_body_mapping.append(possibility)
@@ -118,8 +116,6 @@ class NetDERChase:
 
 			mapping_his = self._rule_map_his[tgd.get_id()]
 			
-			#found_mapping = False
-			
 			
 			cloned_body_mapping = copy.deepcopy(body_mapping)
 			body_mapping_index = 0
@@ -134,14 +130,11 @@ class NetDERChase:
 				index = bisect.bisect_left(mapping_his, value)
 			
 				if index < len(mapping_his) and mapping_his[index] == value:
-				#if key_mapping in mapping_his:
 					possibility_to_remove.append(body_mapping[body_mapping_index])
 
 				else:
 					self._rule_map_his[tgd.get_id()].append(value)
-					#self._rule_map_his[tgd.get_id()] = value
 					self._rule_map_his[tgd.get_id()].sort()
-					#self._rule_map_his[tgd.get_id()].append(key_mapping)
 
 				body_mapping_index += 1
 			
@@ -264,7 +257,6 @@ class NetDERChase:
 					inicio = datetime.now()
 					TGD_result = self.applyStepTGDChase(tgd, query.get_time())
 					fin = datetime.now()
-					#print('Time TGD: ', index, fin - inicio)
 					index += 1
 					new_knowledge[0] = new_knowledge[0] + TGD_result[0]
 					new_knowledge[1] = new_knowledge[1] + TGD_result[1]
@@ -291,7 +283,6 @@ class NetDERChase:
 						
 						if not (len(q_mapping_list) > 0):
 							qa_success = False
-					#if (len(mapping_list) > 0) or (len(new_knowledge[0]) == 0 and len(new_knowledge[1]) == 0):
 					if (qa_success) or ((not success) and len(new_knowledge[1]) == 0):
 						seguir = False
 				else:
@@ -300,23 +291,7 @@ class NetDERChase:
 			if not qa_success and len(mapping_list) > 0:
 				qa_success = True
 
-			'''
-			if qa_success:
-				result = []
-				for possibility in mapping_list:
-					aux_result_mapping = {}
-					for mapping in possibility:
-						for key in mapping.keys():
-							if not (Variable(key) in query.get_exist_var()):
-								aux_result_mapping[key] = mapping[key]
-					if len(aux_result_mapping) > 0:
-						result.append(aux_result_mapping)
-
-			else:
-				net_diff_program = NetDiffProgram(self._kb.get_net_diff_graph(), self._tmax, self._kb.get_net_diff_facts(), self._kb.get_net_diff_lrules(), self._kb.get_net_diff_grules())
-				self._net_diff_interpretation = net_diff_program.diffusion()
-				result = None
-				seguir = True'''
+			
 			net_diff_program = NetDiffProgram(self._kb.get_net_diff_graph(), self._tmax, self._kb.get_net_diff_facts(), self._kb.get_net_diff_lrules(), self._kb.get_net_diff_grules())
 			self._net_diff_interpretation = net_diff_program.diffusion()
 			result = None

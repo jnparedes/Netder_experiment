@@ -256,6 +256,7 @@ ont_head2 = Atom('hyp_is_resp', [Variable('UID'), Variable('FN')])
 ont_head3 = Atom('hyp_malicious', [Variable('UID')])
 #ont_head4 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')]), Atom('member', [Variable('UID3'), Variable('B')])]
 ont_head5 = [Atom('hyp_botnet', [Variable('B')]), Atom('member', [Variable('UID1'), Variable('B')]), Atom('member', [Variable('UID2'), Variable('B')])]
+ont_head9 = Atom('hyp_my_resp', [Variable('FN'), Variable('UID')])
 
 global_conditions = []
 for glabel in category_glabels:
@@ -279,7 +280,7 @@ for gc in global_conditions:
 #hyp_fakeNews(FN) ^ earlyPoster(UID, FN) ^ user(UID, N) -> hyp_is_resp(UID, FN)
 #hyp_fakeNews(FN) ^ earlyPoster(UID, FN) -> hyp_is_resp(UID, FN)
 
-tgd1 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom4], ont_head = [ont_head2])
+tgd1 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom4], ont_head = [ont_head2, ont_head9])
 tgd_counter += 1
 
 #(V1) hyp_is_resp(UID, FN1) ^ hyp_is_resp(UID, FN2) ^ (FN1 != FN2) -> hyp_malicious(UID)
@@ -355,7 +356,7 @@ kb = NetDERKB(ont_data = [], net_db = NetDB(graph, facts), netder_tgds = tgds1, 
 
 chase = NetDERChase(kb, tmax)
 
-query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')])], time = (tmax, tmax))
+query1 = NetDERQuery(exist_var = [Variable('B')], ont_cond = [Atom('hyp_fakenews', [Variable('X')]), Atom('hyp_is_resp', [Variable('Y'), Variable('Z')]), Atom('hyp_my_resp', [Variable('FN'), Variable('AUT')]), Atom('hyp_malicious', [Variable('M')]), Atom('member', [Variable('UID1'), Variable('B')])], time = (tmax, tmax))
 
 iteracion = 0
 for a in atoms:
