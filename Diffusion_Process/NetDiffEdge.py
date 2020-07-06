@@ -16,7 +16,7 @@ class NetDiffEdge(NetDiffGraphElement):
 		return 'edge' + self._id
 	
 	def to_json_string(self):
-		return '{"from":'+ str(self._source) + ', "to":' + str(self._target) + ', "color": "black" ' + '}'
+		return '{"id":"'+ str(self._id) +'", "from":'+ str(self._source) + ', "to":' + str(self._target) + ', "color": "black" ' + '}'
 		#return '{"from":"'+ str(self._source) + '", "to":"' + str(self._target) + '"}'
 	def getSource(self):
 		return self._source

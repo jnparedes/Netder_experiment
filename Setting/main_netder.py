@@ -737,7 +737,7 @@ for setting_values in setting_values_collection:
 			fin_setting = datetime.now()
 			print('Tiempo setting nro', setting_values['setting'], 'run nro', run + 1,':', fin_setting - inicio_setting)
 			setting_counter += 1
-			gt = news_ground_truth_full[time_sim - 1]
+			gt = news_ground_truth_full
 			fn = 0
 			rn = 0
 			fn_cat_counter = {}
@@ -745,18 +745,21 @@ for setting_values in setting_values_collection:
 			for category in fn_dataset.get_category_kinds():
 				fn_cat_counter[category] = 0
 				rn_cat_counter[category] = 0
-
-			for key in gt.keys():
-				category = fn_dataset.get_category(key)
-				if gt[key] == True:
-					fn_cat_counter[category] += 1
-					fn += 1
-				elif gt[key] == False:
-					rn_cat_counter[category] += 1
-					rn += 1
+			total = 0
+			for gt in news_ground_truth_full:	
+				total += len(gt.keys())
+				for key in gt.keys():
+					category = fn_dataset.get_category(key)
+					if gt[key] == True:
+						fn_cat_counter[category] += 1
+						fn += 1
+					elif gt[key] == False:
+						rn_cat_counter[category] += 1
+						rn += 1
 			print('setting', setting_values['setting'], 'run', run + 1)
-			print('porcentaje fake news', fn / len(gt))
-			print('porcentaje real news', rn / len(gt))
+			if total != 0:
+				print('porcentaje fake news', fn / total)
+				print('porcentaje real news', rn / total)
 			print('cuenta por categoria en fn', fn_cat_counter)
 			print('cuenta por categoria en rn', rn_cat_counter)
 

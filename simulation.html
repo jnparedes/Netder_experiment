@@ -8,13 +8,23 @@
           margin: 0;
           font-family: Arial, Helvetica, sans-serif;
         }
-        #mynetwork {
+        #alpha_network {
             position: absolute;
-            top:50px;
-            width: 800px;
-            height: 650px;
+            bottom: 50px;
+            width: 600px;
+            height: 400px;
             border: 1px solid lightgray;
             font-size: 22px;
+            left: 30px;
+        }
+        #beta_network {
+            position: absolute;
+            bottom: 50px;
+            width: 600px;
+            height: 400px;
+            border: 1px solid lightgray;
+            font-size: 22px;
+            right: 30px;
         }
         #visualization {
             position: absolute;
@@ -90,7 +100,8 @@
     </style>
 </head>
 <body>
-<div id="mynetwork"></div>
+<div id="alpha_network"></div>
+<div id="beta_network"></div>
 
 <div id="visualization"></div>
 
@@ -108,161 +119,260 @@
 
 <script type="text/javascript" src="Diffusion_Process/graph.json"></script>
 
+<script src="lodash.js"></script>
+
 
 <script type="text/javascript">
-    var stabilized = true
-    var run = false
-    var delay = 0
+    var index = 0;
+    var stabilized = true;
+    var run = false;
+    var delay = 0;
     var graph = JSON.parse(data);
     //console.log(graph);
-
-    // create a network
-    var container = document.getElementById('mynetwork');
-
-
-    //var options = {layout: {randomSeed: 10, improvedLayout: false} };
-    //posibles randomSeed: 0.4012469889217315:1584825917805, 0.9586959507803734:1584826021248, 0.15472817393692817:1585086505753, 0.6841987126839608:1585087202426, 0.9755683664929418:1585087527907, 0.5376356242133397:1585088202549, 0.7886770177305137:1585088368072, 0.9601501537026379:1585088487394
-    var options = {edges: {width:0.1, physics: true, smooth: {enabled: true}}, nodes: {shape: "dot", size: 5}, physics: {stabilization: {iterations: 100}}, layout: {improvedLayout: false}};
-    var index = 0;
-    var nodes = new vis.DataSet(graph[index]["nodes"]);
-    var edges = new vis.DataSet(graph[index]["edges"]);
-    var dataset = {
-        nodes: nodes,
-        edges: edges
+    var alpha_nodes = new vis.DataSet(graph[index]["nodes"]);
+    var alpha_edges = new vis.DataSet(graph[index]["edges"]);
+    var alpha_dataset = {
+            nodes: alpha_nodes,
+            edges: alpha_edges
+    };
+    var beta_nodes = new vis.DataSet(graph[index]["nodes"]);
+    var beta_edges = new vis.DataSet(graph[index]["edges"]);
+    var beta_dataset = {
+            nodes: beta_nodes,
+            edges: beta_edges
     };
 
-    var network = new vis.Network(container, dataset, options);
-    //stabilizationIterationsDone
-    //network.once('stabilizationIterationsDone', function(e){onStabilizedNetwork(e)});
-    network.on('click', function(e){zoomIn(e)});
-    network.on('oncontext', function(e){zoomOut(e)});
+    var options1 = {edges: {dashes:true, width:0.01, physics: false, smooth: {enabled: true}}, nodes: {shape: "dot", size: 15}, physics: {stabilization: {iterations: 100}}, layout: {randomSeed:0.4012469889217315, improvedLayout: false}};
 
-    network.storePositions();
+    var options2 = {physics: {stabilization: {enabled: false}}, nodes: {fixed: {x:true, y:true}}, layout: {randomSeed:0.4012469889217315, improvedLayout: false} };
+
+
+    // create a network
     
-    setTimeout(freeze, 2000);
-    console.log(dataset);
-    console.log(network.getSeed());
+    //var containers = [document.getElementById('alpha_network'), document.getElementById('beta_network')];
+    var netwk = buildNetwork('alpha_network', options1, alpha_dataset);
+    var netwk2 = buildNetwork('beta_network', options1, beta_dataset);
+    //var networks = [netwk, netwk2]
+    var networks = [netwk, netwk2]
+    netwk.storePositions();
+    console.log(netwk.getSeed());
 
-    function stabilize(){
-        options = {edges: {width:0.1, physics: true, smooth: {enabled: true}}, nodes: {fixed: {x:false, y:false}, shape: "dot", size: 5}, physics: {stabilization: {enabled: true, iterations: 100}}, layout: {randomSeed:0.4012469889217315,improvedLayout: false}};
-        network.setOptions(options);
-        stabilized = false;
-        network.stabilize();
-        setTimeout(freeze, 500);
+    netwk2.once('stabilizationIterationsDone', function(e){onStabilizedNetwork(e)});
+
+
+    function onStabilizedNetwork(e){
+        /*
+        options2 = {edges: {width:0.1, physics: false, smooth: {enabled: true}}, nodes: {shape: "dot", size: 5}, physics: {stabilization: {enabled: false}}, nodes: {fixed: {x:true, y:true}}, layout: {improvedLayout: false} };
+        var other_nodes = new vis.DataSet();
+        var other_edges = new vis.DataSet();
+        var to_clone = [other_nodes, other_edges]
+        dataset['nodes'].forEach(cloneNodes);
+        dataset['edges'].forEach(cloneEdges);
+        function cloneNodes(item, index){
+            other_nodes.add(item)
+        }
+        function cloneEdges(item, index){
+            other_edges.add(item)
+        }
+        var clone_dataset = {
+            nodes: other_nodes,
+            edges: other_edges
+        };
+        clone_dataset = _.cloneDeep(dataset);
+        netwk2 = _.cloneDeep(netwk);
+        cont_beta = document.getElementById('beta_network');
+        cont_beta.appendChild(netwk2)*/
+        
+        var clone_nodes = _.cloneDeep(alpha_dataset['nodes'].getDataSet());
+        var clone_edges = _.cloneDeep(alpha_dataset['edges'].getDataSet());
+        var clone_dataset = {
+            nodes: clone_nodes,
+            edges: clone_edges
+        };
+        var beta_options = {};
+        
+        //networks[1].setData(clone_dataset);
+        //networks[1].setOptions(beta_options);
+        
+        alpha_dataset['nodes'].forEach(cloneNodes);
+        function cloneNodes(item){
+            clone_item = _.cloneDeep(item);
+            //beta_dataset['nodes'].update(clone_item);
+            
+            //var beta_node = beta_dataset['nodes'].get(item.id)
+            
+            var alpha_positions = networks[0].getPositions(item.id);
+            var beta_positions = networks[1].getPositions(item.id);
+            console.log('antes positionX');
+            console.log(beta_positions[item.id].x);
+            var beta_node = {
+                id: item.id,
+                x: alpha_positions[item.id].x,
+                y: alpha_positions[item.id].y
+            };
+            beta_dataset['nodes'].update(beta_node);
+            console.log('despues positionX');
+            console.log(beta_positions[item.id].x);
+            
+        }
+        alpha_dataset['edges'].forEach(cloneEdges);
+        function cloneEdges(item){
+            clone_item = _.cloneDeep(item);
+            beta_dataset['edges'].update(clone_item);
+            
+        }
+
+        var ids = alpha_dataset['edges'].getIds();
+        var id = beta_dataset['edges'].getIds()[10];
+        console.log(ids.indexOf(id));
+        
+        //cloneDataset = JSON.parse(JSON.stringify(dataset))
+        
+        //buildNetwork('beta_network', options2, clone_dataset);
     }
+
+    setTimeout(freeze, 2000);
 
     function freeze(){
-        options = {physics: {stabilization: {enabled: false}}, nodes: {fixed: {x:true, y:true}}, layout: {randomSeed:0.4012469889217315, improvedLayout: false} };
-        network.setOptions(options);
-        stabilized = true
-        document.getElementById("currentTime").innerHTML = "Current Time: " + index;
-    }
-
-    
-    function onStabilizedNetwork(e){
-        document.getElementById("currentTime").innerHTML = "Current Time: " + index;
-        if((index + 1) < graph.length){
-            setTimeout(myFunction, 2000);
-        }
-    }
-
-    function zoomOut(e){
-        var old_scale = network.getScale()
-        var new_scale = old_scale - 0.1
-        if (new_scale <= 0){
-            new_scale = old_scale
-        }
-
-        network.moveTo({position: {x: e["pointer"]["canvas"]["x"], y:e["pointer"]["canvas"]["y"]}, scale:new_scale, animation: {duration:1000}})
-    }
-
-    function zoomIn(e){
-        var old_scale = network.getScale()
-        var new_scale = old_scale + 0.1
-        network.moveTo({position: {x: e["pointer"]["canvas"]["x"], y:e["pointer"]["canvas"]["y"]}, scale:new_scale, animation: {duration:1000}})
-    }
-
-    function update(){
-        if(index + 1 < graph.length){
-            index = index + 1;
-            console.log('time: ');
-            console.log(index);
+        networks.forEach(freezeNet);
+        function freezeNet(net){
+            options_freeze = {physics: {stabilization: {enabled: false}}, nodes: {fixed: {x:true, y:true}}, layout: {randomSeed:0.4012469889217315, improvedLayout: false} };
+            net.setOptions(options_freeze);
+            stabilized = true
             document.getElementById("currentTime").innerHTML = "Current Time: " + index;
-            nodes.update(graph[index]["nodes"]);
-            //edges.update(graph[index]["edges"]);
+
         }
-        if(nxtTimeLineItem + 1 < global_item.length){
-            nxtTimeLineItem = nxtTimeLineItem + 1;
-            console.log('time: ');
-            console.log(nxtTimeLineItem);
-            datasetVis.update(global_item[nxtTimeLineItem]);
-        }
+        
+        
+        
     }
 
-    function hideEdges(){
-        var checkbox = document.getElementById("EdgesCheckBox")
-        var options
-        if (checkbox.checked == true){
-            options = {edges:{hidden: true}}
-            network.setOptions(options)
-        } else {
-            options = {edges:{hidden: false}}
-            network.setOptions(options)
+    function buildNetwork(container_name, options, dataset){
+        //var options = {layout: {randomSeed: 10, improvedLayout: false} };
+        //posibles randomSeed: 0.4012469889217315:1584825917805, 0.9586959507803734:1584826021248, 0.15472817393692817:1585086505753, 0.6841987126839608:1585087202426, 0.9755683664929418:1585087527907, 0.5376356242133397:1585088202549, 0.7886770177305137:1585088368072, 0.9601501537026379:1585088487394
+        var container = document.getElementById(container_name);
+        
+
+        var network = new vis.Network(container);
+        network.setData(dataset);
+        network.setOptions(options)
+        //stabilizationIterationsDone
+        //network.once('stabilizationIterationsDone', function(e){onStabilizedNetwork(e)});
+        network.on('click', function(e){zoomIn(e)});
+        network.on('oncontext', function(e){zoomOut(e)});
+
+        
+        console.log(dataset);
+
+        function stabilize(){
+            options = {edges: {width:0.1, physics: true, smooth: {enabled: true}}, nodes: {fixed: {x:false, y:false}, shape: "dot", size: 5}, physics: {stabilization: {enabled: true, iterations: 100}}, layout: {randomSeed:0.4012469889217315, improvedLayout: false}};
+            network.setOptions(options);
+            stabilized = false;
+            network.stabilize();
+            setTimeout(freeze, 500);
         }
-    }
 
-    function play(){
-        run = true;
-        delay = document.getElementById("delayInput").value;
-        goAhead();
-    }
 
-    function goAhead(){
-        if (run){
-            update();
-            document.getElementById("currentTime").innerHTML = "Current Time: " + index;
-            if((index + 1) < graph.length){
-                setTimeout(goAhead, delay);
-            }else{
-                run = false;
+        function zoomOut(e){
+            var old_scale = network.getScale()
+            var new_scale = old_scale - 0.1
+            if (new_scale <= 0){
+                new_scale = old_scale
             }
-        }
-    }
-    
-    function stop(){
-        run = false;
-    }
 
-    function back(){
-        if (!run && stabilized){
-            if(index - 1 >= 0){
-                index = index - 1;
-                //stabilize();
+            network.moveTo({position: {x: e["pointer"]["canvas"]["x"], y:e["pointer"]["canvas"]["y"]}, scale:new_scale, animation: {duration:1000}})
+        }
+
+        function zoomIn(e){
+            var old_scale = network.getScale()
+            var new_scale = old_scale + 0.1
+            network.moveTo({position: {x: e["pointer"]["canvas"]["x"], y:e["pointer"]["canvas"]["y"]}, scale:new_scale, animation: {duration:1000}})
+        }
+
+        function update(){
+            if(index + 1 < graph.length){
+                index = index + 1;
                 console.log('time: ');
                 console.log(index);
-
-                //nodes.clear();
-                //nodes.add(graph[index]["nodes"])
+                document.getElementById("currentTime").innerHTML = "Current Time: " + index;
                 nodes.update(graph[index]["nodes"]);
                 //edges.update(graph[index]["edges"]);
-                document.getElementById("currentTime").innerHTML = "Current Time: " + index;
             }
-            if(nxtTimeLineItem - 1 >= 0){
-                nxtTimeLineItem = nxtTimeLineItem - 1;
+            if(nxtTimeLineItem + 1 < global_item.length){
+                nxtTimeLineItem = nxtTimeLineItem + 1;
                 console.log('time: ');
                 console.log(nxtTimeLineItem);
-                datasetVis.clear();
-                datasetVis.add(global_item[nxtTimeLineItem]);
+                datasetVis.update(global_item[nxtTimeLineItem]);
             }
         }
+
+        function hideEdges(){
+            var checkbox = document.getElementById("EdgesCheckBox")
+            var options
+            if (checkbox.checked == true){
+                options = {edges:{hidden: true}}
+                network.setOptions(options)
+            } else {
+                options = {edges:{hidden: false}}
+                network.setOptions(options)
+            }
+        }
+
+        function play(){
+            run = true;
+            delay = document.getElementById("delayInput").value;
+            goAhead();
+        }
+
+        function goAhead(){
+            if (run){
+                update();
+                document.getElementById("currentTime").innerHTML = "Current Time: " + index;
+                if((index + 1) < graph.length){
+                    setTimeout(goAhead, delay);
+                }else{
+                    run = false;
+                }
+            }
+        }
+        
+        function stop(){
+            run = false;
+        }
+
+        function back(){
+            if (!run && stabilized){
+                if(index - 1 >= 0){
+                    index = index - 1;
+                    //stabilize();
+                    console.log('time: ');
+                    console.log(index);
+
+                    //nodes.clear();
+                    //nodes.add(graph[index]["nodes"])
+                    nodes.update(graph[index]["nodes"]);
+                    //edges.update(graph[index]["edges"]);
+                    document.getElementById("currentTime").innerHTML = "Current Time: " + index;
+                }
+                if(nxtTimeLineItem - 1 >= 0){
+                    nxtTimeLineItem = nxtTimeLineItem - 1;
+                    console.log('time: ');
+                    console.log(nxtTimeLineItem);
+                    datasetVis.clear();
+                    datasetVis.add(global_item[nxtTimeLineItem]);
+                }
+            }
+        }
+
+        function next(){
+            if (!run){
+                update();
+            }
+        }
+
+        return network
     }
 
-    function next(){
-        if (!run){
-            update();
-        }
-    }
-    
 </script>
 
 <script src="https://ww3.arb.ca.gov/ei/tools/lib/vis/dist/vis.js">

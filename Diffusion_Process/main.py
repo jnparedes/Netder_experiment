@@ -18,7 +18,7 @@ from Average import Average
 from CFNetDiffFactRedLabels import CFNetDiffFactRedLabels
 import portion
 
-csv_graph_location = "../graph_data/graph(n=1000, e=2000).csv"
+csv_graph_location = "../graph_data/graph(n=150, e=495).csv"
 json_graph_location = "graph.json"
 
 nodes = set()
