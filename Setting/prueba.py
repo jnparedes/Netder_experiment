@@ -290,7 +290,7 @@ tgd2 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom5, atom6, atom7], ont_he
 #tgd2 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom5], ont_head = [ont_head3])
 tgd_counter += 1
 
-#hyp_malicious(UID1) ^ hyp_malicious(UID2) ^ closer(UID1, UID2) ^ (V > \theta_2) ^ (UID1 != UID2) -> \exists B hyp_botnet(B) ^ member(UID1, B) ^ member(UID2, B)
+#hyp_malicious(UID1) ^ hyp_malicious(UID2) ^ closer(UID1, UID2) -> \exists B hyp_botnet(B) ^ member(UID1, B) ^ member(UID2, B)
 tgd3 = NetDERTGD(rule_id = 'tgd' + str(tgd_counter), ont_body = [atom9, atom10, atom11], ont_head = ont_head5)
 #tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [atom13, atom14, atom15], ont_head = ont_head5)
 #tgd3 = NetDERTGD(rule_id = tgd_counter, ont_body = [ont_head1, atom20, atom21, atom15], ont_head = ont_head5)
@@ -367,4 +367,3 @@ for a in atoms:
 		for key in ans.keys():
 			print(key, ans[key])
 	iteracion += 1
-		
